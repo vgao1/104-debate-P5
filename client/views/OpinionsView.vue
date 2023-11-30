@@ -4,12 +4,16 @@ import TextContainer from "@/components/TextContainer.vue";
 import { useRoute } from "vue-router";
 import { fetchy } from "@/utils/fetchy";
 import { onBeforeMount, ref } from "vue";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import router from "../router";
 
 const route = useRoute();
 const debateId = route.params.id;
 const debate = ref<Record<string, string>>({});
 const opinions = ref<Array<Record<string, string>>>([]);
 const loaded = ref(false);
+const { isLoggedIn } = storeToRefs(useUserStore());
 
 async function getOpinions() {
   let res;
@@ -25,8 +29,14 @@ async function getOpinions() {
 }
 
 onBeforeMount(async () => {
-  await getOpinions();
-  loaded.value = true;
+  if (!isLoggedIn.value) {
+    void router.push({
+      path: `/login`,
+    });
+  } else {
+    await getOpinions();
+    loaded.value = true;
+  }
 });
 </script>
 
