@@ -15,6 +15,8 @@ const sliderValue = ref();
 const opinionText = ref("");
 const buttonText = ref("");
 
+const maxOpinionChars = 1000;
+
 // const sliderColor = computed(() => {
 //   // Define an array of colors in the gradient
 //   const colors = ['#e07a5f', '#de7c5d', '#d88258', '#ce8a53', '#c09453', '#b09d59', '#a0a466', '#93aa75', '#89ae84', '#84b090', '#81b297', '#81b29a'];
@@ -44,10 +46,6 @@ onBeforeMount(async () => {
 });
 
 async function submitOpinion() {
-  //   const opinionJson = JSON.stringify(opinion);
-  // Save to local storage
-  //   localStorage.setItem('userOpinion', opinionJson);
-
   try {
     await fetchy("/api/activeDebates/submitOpinion", "POST", {
       body: {
@@ -83,17 +81,6 @@ async function editOpinion() {
     path: "/",
   });
 }
-
-onMounted(() => {
-  // Retrieve opinion from local storage
-  //   const opinionJson = localStorage.getItem('userOpinion');
-  //   if (opinionJson) {
-  //     isEditing.value = true;
-  //     const opinion = JSON.parse(opinionJson);
-  //     opinionText.value = opinion.content;
-  //     sliderValue.value = opinion.agree;
-  //   }
-});
 </script>
 
 <template>
@@ -120,7 +107,7 @@ onMounted(() => {
       <textarea v-model="opinionText" class="textarea textarea-bordered h-24 font-base" placeholder="Develop your opinion..."></textarea>
       <label class="label">
         <span class="label-text"></span>
-        <span class="label-text-alt">(0/1000) words</span>
+        <span class="label-text-alt">({{ opinionText.length }}/{{ maxOpinionChars}})</span>
       </label>
     </div>
 

@@ -1,13 +1,28 @@
 <script setup lang="ts">
 import router from "@/router";
-import { onMounted } from "vue";
+import { onBeforeMount, onMounted, ref, computed } from "vue";
+import { useRoute } from 'vue-router';
 
-const props = defineProps(["activeIcon"]);
-const activeIconId = props.activeIcon + "-icon-btn";
+// use current route instead of props to determine which page is active (otherwise have some bugs, e.g. when refreshing on non-home page)
+// const props = defineProps(["activeIcon"]);
+// const activeIconId = props.activeIcon + "-icon-btn";
+
+const route = useRoute()
+const currentRouteName = computed(() => route.name)
+
+const activeIconId = computed(() => {
+  if (currentRouteName.value == "Home") {
+    return "home-icon-btn";
+  } else if (currentRouteName.value == "Suggest") {
+    return "suggest-icon-btn";
+  } else if (currentRouteName.value == "Settings") {
+    return "login-icon-btn";
+  }
+});
 
 onMounted(() => {
   removeActiveClass();
-  document.getElementById(activeIconId)!.classList.add("active");
+  document.getElementById(activeIconId.value)!.classList.add("active");
 });
 
 function openHome() {
@@ -15,6 +30,14 @@ function openHome() {
   document.getElementById("home-icon-btn")!.classList.add("active");
   void router.push({
     path: `/`,
+  });
+}
+
+function openSuggest() {
+  removeActiveClass();
+  document.getElementById("suggest-icon-btn")!.classList.add("active");
+  void router.push({
+    path: `/suggest`,
   });
 }
 
@@ -45,7 +68,7 @@ function removeActiveClass() {
       </svg>
     </button>
 
-    <button>
+    <button id="suggest-icon-btn" @click="openSuggest">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>

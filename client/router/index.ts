@@ -10,6 +10,7 @@ import DebateView from "../views/DebateView.vue";
 import ReviewView from "../views/ReviewView.vue";
 import OpinionsView from "../views/OpinionsView.vue";
 import TestingView from "../views/TestingView.vue";
+import SuggestPromptViewVue from "@/views/SuggestPromptView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -33,6 +34,11 @@ const router = createRouter({
       path: "/debates/:id/opinions",
       name: "Opinions",
       component: OpinionsView,
+    },
+    {
+      path: "/suggest",
+      name: "Suggest",
+      component: SuggestPromptViewVue
     },
     {
       path: "/reviews/",

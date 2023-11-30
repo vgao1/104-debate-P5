@@ -33,7 +33,7 @@ function openOpinions() {
 <template>
   <div>
     <!-- <button @click="openDebate"> -->
-    <div>
+    <div class="border-l-2 pl-2 border-neutral-300 space-y-1">
       <div class="flex justify-between items-center">
         <b class="text-xs">{{ debate.category }}</b>
 
@@ -44,7 +44,7 @@ function openOpinions() {
           <p class="text-xs text-neutral-400">Done</p>
         </div>
       </div>
-      <p class="pb-1 border-l-2 pl-2 border-neutral-300 space-y-1">{{ debate.prompt }}</p>
+      <p class="pb-1">{{ debate.prompt }}</p>
     </div>
 
     <!-- </button> -->
