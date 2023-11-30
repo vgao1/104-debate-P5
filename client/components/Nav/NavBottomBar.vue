@@ -22,7 +22,9 @@ const activeIconId = computed(() => {
 
 onMounted(() => {
   removeActiveClass();
-  document.getElementById(activeIconId.value)!.classList.add("active");
+  if (activeIconId.value != undefined) {
+    document.getElementById(activeIconId.value)!.classList.add("active");
+  }
 });
 
 function openHome() {
