@@ -56,11 +56,14 @@ export default class DebateConcept {
   async addOpinion(_id: ObjectId, user: string, content: string, likertScale: string) {
     const existingDebate = await this.getDebate(_id);
     if (!(await this.isParticipant(_id, user))) {
+      console.log("new participant");
       const allParticipants = existingDebate.participants;
       allParticipants.push(user);
       await this.opinions.createOne({ content, author: user, likertScale, debate: _id });
+      await this.debates.updateOne({ _id }, { participants: allParticipants });
     } else {
-      await this.opinions.updateOne({ author: user }, { content, likertScale });
+      console.log("update old response");
+      await this.opinions.updateOne({ author: user, debate: _id }, { content, likertScale });
     }
     return { msg: "Successfully added opinion!" };
   }
