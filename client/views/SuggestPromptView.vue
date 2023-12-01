@@ -50,7 +50,7 @@ onBeforeMount(async () => {
       <p class="text-base font-bold">Suggest a debate</p>
     </TextContainer>
     
-    <label class="form-control w-full">
+    <label class="form-control w-full px-2">
       <div class="label">
         <span class="label-text">Category</span>
         <!-- <span class="label-text-alt">Top Right label</span> -->
@@ -63,7 +63,7 @@ onBeforeMount(async () => {
     </label>
 
 
-    <div class="form-control">
+    <div class="form-control px-2">
       <label class="label">
         <span class="label-text">Prompt</span>
         <span class="label-text-alt"></span>
