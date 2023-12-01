@@ -160,7 +160,6 @@ export default class PhaseConcept {
    * @returns all the items that are past the review stage (phase 2)
    */
   public async expireOld() {
-    console.log("expire Old");
     const now = new Date();
     const activePhases = await this.active.readMany({});
     const reviewDone = [];
@@ -169,7 +168,7 @@ export default class PhaseConcept {
       const newDate: Date = phase.deadline;
       let newPhase = phase.curPhase;
 
-      while (newDate < now && newPhase < this.maxPhase) {
+      if (newDate < now && newPhase < this.maxPhase) {
         newDate.setTime(newDate.getTime() + this.deadlineExtension * 60 * 60 * 1000);
         newPhase += 1;
       }

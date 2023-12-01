@@ -187,9 +187,9 @@ class Routes {
   }
 
   @Router.get("/debate/getMyOpinion/:debateID")
-  async getMyOpinionForDebate(session: WebSessionDoc, debate: string) {
+  async getMyOpinionForDebate(session: WebSessionDoc, debateID: string) {
     const user = WebSession.getUser(session);
-    return await Debate.getOpinionForDebateByAuthor(debate, user.toString());
+    return await Debate.getOpinionForDebateByAuthor(debateID, user.toString());
   }
 
   @Router.delete("/debate/deleteMyOpinion/:debateID")

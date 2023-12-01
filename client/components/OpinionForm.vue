@@ -47,7 +47,7 @@ onBeforeMount(async () => {
 
 async function submitOpinion() {
   try {
-    await fetchy("/api/activeDebates/submitOpinion", "POST", {
+    await fetchy("/api/debate/submitOpinion", "POST", {
       body: {
         debate: debateId,
         content: opinionText.value,
