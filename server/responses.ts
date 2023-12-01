@@ -57,7 +57,7 @@ export default class Responses {
     }
     const opinions = await Debate.getAllOpinionsForDebate(phase.key.toString());
     const debate = await Debate.getDebateById(phase.key);
-    return { opinions, debate };
+    return { opinions, prompt: debate.prompt, category: debate.category, curPhase: PHASES[phase.curPhase] };
   }
 }
 
