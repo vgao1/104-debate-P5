@@ -17,7 +17,8 @@ export default class PhaseConcept {
   public readonly active = new DocCollection<ActivePhaseDoc>("active phases");
   public readonly expired = new DocCollection<BasePhaseDoc>("expired phases");
   private maxPhase = 4;
-  private deadlineExtension = 0.05;
+  // set debate duration to 15 min for testing purposes
+  private deadlineExtension = 0.25;
   public numPromptsPerDay = 2;
 
   /**
