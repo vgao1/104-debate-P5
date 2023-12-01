@@ -58,6 +58,7 @@ onBeforeMount(async () => {
 
     <div v-for="opinion in opinions" :key="opinion._id" class="flex flex-col">
       <TextContainer>
+        <b class="text-sm">User Opinion: </b>
         {{ opinion.content }}
       </TextContainer>
     </div>

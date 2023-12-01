@@ -38,10 +38,10 @@ const router = createRouter({
     {
       path: "/suggest",
       name: "Suggest",
-      component: SuggestPromptViewVue
+      component: SuggestPromptViewVue,
     },
     {
-      path: "/reviews/",
+      path: "/debates/:id/reviews/",
       name: "Review",
       component: ReviewView,
     },

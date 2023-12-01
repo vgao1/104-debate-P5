@@ -21,19 +21,26 @@ async function getDebates() {
 async function getHistoryDebates() {
   let res;
   try {
-      res = await fetchy("/api/historyDebates", "GET", {});
+    res = await fetchy("/api/historyDebates", "GET", {});
   } catch (_) {
-      return;
+    return;
   }
   console.log("getHistoryDebates");
   console.log(res);
   historyDebates.value = res;
 }
 
-function numHoursLeft(deadline: string) {
+function timeLeft(deadline: string) {
   const currentTime = new Date().getTime();
   const debateDeadline = new Date(deadline).getTime();
-  return Math.floor(Math.abs(currentTime - debateDeadline) / 36e5);
+  let timeLeft = Math.floor((debateDeadline - currentTime) / 36e5);
+  let timeUnit = "hr";
+  // less than 1 hour left
+  if (timeLeft == 0) {
+    timeUnit = "min";
+    timeLeft = Math.floor((debateDeadline - currentTime) / 6e4);
+  }
+  return timeLeft.toString() + " " + timeUnit;
 }
 
 onBeforeMount(async () => {
@@ -52,7 +59,7 @@ onBeforeMount(async () => {
     </TextContainer>
     <div v-for="debate in debates" class="flex flex-col" :key="debate._id">
       <TextContainer>
-        <DebatePrompt :debate="debate" :numHoursLeft="numHoursLeft(debate.deadline)" />
+        <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate.deadline)" />
       </TextContainer>
     </div>
     <!-- <div v-for="id in debateIds" class="flex flex-col">
@@ -67,7 +74,7 @@ onBeforeMount(async () => {
 
     <div v-for="debate in historyDebates" class="flex flex-col" :key="debate._id">
       <TextContainer>
-        <DebatePrompt :debate="debate" :numHoursLeft="numHoursLeft(debate.deadline)" />
+        <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate.deadline)" />
       </TextContainer>
     </div>
 

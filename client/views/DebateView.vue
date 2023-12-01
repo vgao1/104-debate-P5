@@ -13,7 +13,8 @@ const route = useRoute();
 const debateId = route.params.id;
 const debate = ref<Record<string, string>>({});
 const loaded = ref(false);
-const numHoursLeft = ref();
+const timeLeft = ref();
+const timeUnit = ref("hr");
 const { isLoggedIn } = storeToRefs(useUserStore());
 
 async function getDebate() {
@@ -26,7 +27,24 @@ async function getDebate() {
   }
   const currentTime = new Date().getTime();
   const debateDeadline = new Date(res.deadline).getTime();
-  numHoursLeft.value = Math.floor(Math.abs(currentTime - debateDeadline) / 36e5);
+  timeLeft.value = Math.floor((debateDeadline - currentTime) / 36e5);
+  // less than 1 hour left
+  if (timeLeft.value == 0) {
+    timeUnit.value = "min";
+    timeLeft.value = Math.floor((debateDeadline - currentTime) / 6e4);
+    // no time left
+    if (timeLeft.value <= 0) {
+      if (res.curPhase === "Review") {
+        void router.push({
+          path: `/debates/${debateId}/reviews`,
+        });
+      } else {
+        void router.push({
+          path: `/debates/${debateId}/opinions`,
+        });
+      }
+    }
+  }
   debate.value = res;
 }
 
@@ -54,7 +72,7 @@ onBeforeMount(async () => {
           <p class="text-base">
             Due at <b>{{ debate.deadline }}</b>
           </p>
-          <p class="text-sm">{{ numHoursLeft }}h remaining</p>
+          <p class="text-sm">{{ timeLeft + " " + timeUnit }} remaining</p>
         </div>
       </div>
     </TextContainer>

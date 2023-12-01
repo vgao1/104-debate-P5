@@ -55,7 +55,7 @@ export default class Responses {
     if (!phase) {
       return phase;
     }
-    const opinions = await Debate.getAllOpinionsForDebate(phase.key);
+    const opinions = await Debate.getAllOpinionsForDebate(phase.key.toString());
     const debate = await Debate.getDebateById(phase.key);
     return { opinions, debate };
   }

@@ -12,13 +12,13 @@ export interface OpinionDoc extends BaseDoc {
   content: string;
   author: string;
   likertScale: string;
-  debate: ObjectId;
+  debate: string;
 }
 
 export interface DifferentOpinionMatchDoc extends BaseDoc {
   reviewer: string;
   matchedDifferentOpinions: Array<string>;
-  debate: ObjectId;
+  debate: string;
 }
 
 export default class DebateConcept {
@@ -56,14 +56,12 @@ export default class DebateConcept {
   async addOpinion(_id: ObjectId, user: string, content: string, likertScale: string) {
     const existingDebate = await this.getDebate(_id);
     if (!(await this.isParticipant(_id, user))) {
-      console.log("new participant");
       const allParticipants = existingDebate.participants;
       allParticipants.push(user);
-      await this.opinions.createOne({ content, author: user, likertScale, debate: _id });
+      await this.opinions.createOne({ content, author: user, likertScale, debate: _id.toString() });
       await this.debates.updateOne({ _id }, { participants: allParticipants });
     } else {
-      console.log("update old response");
-      await this.opinions.updateOne({ author: user, debate: _id }, { content, likertScale });
+      await this.opinions.updateOne({ author: user, debate: _id.toString() }, { content, likertScale });
     }
     return { msg: "Successfully added opinion!" };
   }
@@ -97,7 +95,7 @@ export default class DebateConcept {
    * opinions they are matched to
    */
   async matchParticipantToDifferentOpinions(_id: ObjectId) {
-    const allOpinions = await this.opinions.readMany({ debate: _id });
+    const allOpinions = await this.opinions.readMany({ debate: _id.toString() });
     for (const opinion of allOpinions) {
       for (const otherOpinion of allOpinions) {
         const opinionObj = await this.opinions.readOne({ _id: opinion._id });
@@ -107,21 +105,21 @@ export default class DebateConcept {
         } else {
           if (opinionObj.likertScale !== otherOpinionObj.likertScale) {
             const opinionObjAuthor = opinionObj.author;
-            const participantMatchedOpinions = await this.differentOpinionMatches.readOne({ reviewer: opinionObjAuthor, debate: _id });
+            const participantMatchedOpinions = await this.differentOpinionMatches.readOne({ reviewer: opinionObjAuthor, debate: _id.toString() });
             if (participantMatchedOpinions) {
               if (!participantMatchedOpinions.matchedDifferentOpinions.includes(otherOpinion._id.toString())) {
                 const matchedOpinions = participantMatchedOpinions.matchedDifferentOpinions;
                 matchedOpinions.push(otherOpinion._id.toString());
-                await this.differentOpinionMatches.updateOne({ reviewer: opinionObjAuthor, debate: _id }, { matchedDifferentOpinions: matchedOpinions });
+                await this.differentOpinionMatches.updateOne({ reviewer: opinionObjAuthor, debate: _id.toString() }, { matchedDifferentOpinions: matchedOpinions });
               }
             } else {
-              await this.differentOpinionMatches.createOne({ reviewer: opinionObjAuthor, debate: _id, matchedDifferentOpinions: [otherOpinion._id.toString()] });
+              await this.differentOpinionMatches.createOne({ reviewer: opinionObjAuthor, debate: _id.toString(), matchedDifferentOpinions: [otherOpinion._id.toString()] });
             }
           }
         }
       }
     }
-    return this.differentOpinionMatches.readMany({ debate: _id });
+    return this.differentOpinionMatches.readMany({ debate: _id.toString() });
   }
 
   /**
@@ -131,7 +129,7 @@ export default class DebateConcept {
    * @param opinionId the ObjectId of opinion that was matched to the reviewer
    * @returns a message stating that opinion matched to reviewer was successfully removed or throws an error
    */
-  async removeDifferentOpinion(debate: ObjectId, reviewer: string, opinionId: string) {
+  async removeDifferentOpinion(debate: string, reviewer: string, opinionId: string) {
     const existingMatchedOpinions = await this.differentOpinionMatches.readOne({ reviewer, debate });
     if (!existingMatchedOpinions) {
       throw new NotFoundError("");
@@ -155,7 +153,7 @@ export default class DebateConcept {
    */
   async deleteMatchesForDebate(debateIDs: ObjectId[]) {
     for (const debate of debateIDs) {
-      await this.differentOpinionMatches.deleteMany({ debate });
+      await this.differentOpinionMatches.deleteMany({ debate: debate.toString() });
     }
     return { msg: "Successfully removed all opinion matches for the given debates!" };
   }
@@ -167,7 +165,7 @@ export default class DebateConcept {
    * if the user hasn't added an opinion to debate yet), likertScale value (of previous submission
    * or default value of 50), and text of button to render.
    */
-  async getOpinionForDebateByAuthor(debate: ObjectId, author: string) {
+  async getOpinionForDebateByAuthor(debate: string, author: string) {
     const existingOpinion = await this.opinions.readOne({ author, debate });
     if (existingOpinion) {
       return { content: existingOpinion.content, likertScale: existingOpinion.likertScale, buttonText: "Update" };
@@ -227,12 +225,12 @@ export default class DebateConcept {
    * @returns an object containing a success message
    */
   async delete(_id: ObjectId) {
-    const allOpinions = await this.opinions.readMany({ debate: _id });
+    const allOpinions = await this.opinions.readMany({ debate: _id.toString() });
     for (const opinion of allOpinions) {
       await this.opinions.deleteOne({ _id: new ObjectId(opinion._id) });
     }
     await this.debates.deleteOne({ _id });
-    await this.differentOpinionMatches.deleteMany({ debate: _id });
+    await this.differentOpinionMatches.deleteMany({ debate: _id.toString() });
     return { msg: "Debate and related deleted successfully!" };
   }
 
@@ -243,13 +241,13 @@ export default class DebateConcept {
    * @returns an object containing a success message
    */
   async deleteOneOpinion(debate: ObjectId, author: string) {
-    await this.opinions.deleteOne({ debate, author });
+    await this.opinions.deleteOne({ debate: debate.toString(), author });
     await this.removeParticipant(debate, author);
     return { msg: "Opinion deleted successfully!" };
   }
 
-  async getAllOpinionsForDebate(debate: ObjectId) {
-    const allOpinions = this.opinions.readMany({ debate });
+  async getAllOpinionsForDebate(debate: string) {
+    const allOpinions = await this.opinions.readMany({ debate });
     return allOpinions;
   }
 }

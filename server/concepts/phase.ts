@@ -17,7 +17,7 @@ export default class PhaseConcept {
   public readonly active = new DocCollection<ActivePhaseDoc>("active phases");
   public readonly expired = new DocCollection<BasePhaseDoc>("expired phases");
   private maxPhase = 4;
-  private deadlineExtension = 24;
+  private deadlineExtension = 0.05;
   public numPromptsPerDay = 2;
 
   /**
@@ -222,7 +222,12 @@ export default class PhaseConcept {
   private async doesntExist(key: ObjectId) {
     const phase = await this.active.readOne({ key });
     if (!phase) {
-      throw new NoPhaseError(key);
+      const expiredPhase = await this.expired.readOne({ key });
+      if (!expiredPhase) {
+        throw new NoPhaseError(key);
+      } else {
+        return expiredPhase;
+      }
     }
     return phase;
   }

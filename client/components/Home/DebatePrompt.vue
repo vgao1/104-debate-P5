@@ -4,10 +4,11 @@ import ViewOpinionsButton from "./ViewOpinionsButton.vue";
 import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import ReviewOpinionsButton from "./ReviewOpinionsButton.vue";
 
-const props = defineProps(["debate", "numHoursLeft"]);
+const props = defineProps(["debate", "timeLeft"]);
 const debate = props.debate;
-const numHoursLeft = props.numHoursLeft;
+const timeLeft = props.timeLeft;
 const debateId = debate.key;
 const { isLoggedIn } = storeToRefs(useUserStore());
 
@@ -20,6 +21,12 @@ function redirectToLogin() {
 function openDebate() {
   void router.push({
     path: `/debates/${debateId}`,
+  });
+}
+
+function openReviews() {
+  void router.push({
+    path: `/debates/${debateId}/reviews`,
   });
 }
 
@@ -37,8 +44,8 @@ function openOpinions() {
       <div class="flex justify-between items-center">
         <b class="text-xs">{{ debate.category }}</b>
 
-        <div v-if="debate.status != 'done'">
-          <p class="text-xs text-lime-400">Due in {{ numHoursLeft }}h</p>
+        <div v-if="debate.curPhase != 'Recently Completed' && debate.curPhase != 'Archived'">
+          <p class="text-xs text-lime-400">Due in {{ timeLeft }}</p>
         </div>
         <div v-else>
           <p class="text-xs text-neutral-400">Done</p>
@@ -48,8 +55,9 @@ function openOpinions() {
     </div>
 
     <!-- </button> -->
-    <WriteOpinionButton v-if="!isLoggedIn" @click="redirectToLogin" />
-    <WriteOpinionButton v-else-if="debate.curPhase != 'Archived'" @click="openDebate" />
-    <ViewOpinionsButton v-else @click="openOpinions" />
+    <ViewOpinionsButton v-if="debate.curPhase == 'Recently Completed' || debate.curPhase == 'Archived'" @click="openOpinions" />
+    <WriteOpinionButton v-else-if="!isLoggedIn" @click="redirectToLogin" />
+    <WriteOpinionButton v-else-if="isLoggedIn && debate.curPhase == 'Start'" @click="openDebate" />
+    <ReviewOpinionsButton v-else-if="isLoggedIn && debate.curPhase == 'Review'" @click="openReviews" />
   </div>
 </template>

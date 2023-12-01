@@ -55,7 +55,7 @@ const operations = [
   },
   {
     name: "Update Phase",
-    endpoint: "/api/phase",
+    endpoint: "/api/debate/changeDeadline",
     method: "PATCH",
     fields: { key: ["input", "text"], newDeadline: ["input", "datetime-local"] },
   },
@@ -108,12 +108,6 @@ const operations = [
     fields: { debate: ["input", "text"], content: ["input", "text"], likertScale: ["input", "text"] },
   },
   {
-    name: "Get Participants",
-    endpoint: "/api/debate/participants",
-    method: "GET",
-    fields: { debate: ["input", "text"] },
-  },
-  {
     name: "Match Participant to Different Opinions",
     endpoint: "/api/debate/matchOpinions",
     method: "GET",
@@ -124,12 +118,6 @@ const operations = [
     endpoint: "/api/debate/removeMatchedOpinion",
     method: "POST",
     fields: { debate: ["input", "text"], opinionId: ["input", "text"] },
-  },
-  {
-    name: "Get All Debates",
-    endpoint: "/api/debate/getDebates",
-    method: "GET",
-    fields: {},
   },
 ];
 

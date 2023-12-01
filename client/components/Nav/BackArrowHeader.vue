@@ -4,9 +4,9 @@ import router from "@/router";
 const props = defineProps({
   text: {
     type: String,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 function goBack() {
   void router.back();

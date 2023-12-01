@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import router from "@/router";
-import { onBeforeMount, onMounted, ref, computed } from "vue";
-import { useRoute } from 'vue-router';
+import { onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
 
 // use current route instead of props to determine which page is active (otherwise have some bugs, e.g. when refreshing on non-home page)
 // const props = defineProps(["activeIcon"]);
 // const activeIconId = props.activeIcon + "-icon-btn";
 
-const route = useRoute()
-const currentRouteName = computed(() => route.name)
+const route = useRoute();
+const currentRouteName = computed(() => route.name);
 
 const activeIconId = computed(() => {
   if (currentRouteName.value == "Home") {
@@ -17,6 +17,8 @@ const activeIconId = computed(() => {
     return "suggest-icon-btn";
   } else if (currentRouteName.value == "Settings") {
     return "login-icon-btn";
+  } else {
+    return "home-icon-btn";
   }
 });
 

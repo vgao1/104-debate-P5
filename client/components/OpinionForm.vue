@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { fetchy } from "@/utils/fetchy";
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 import router from "../router";
 import OpinionSlider from "./OpinionSlider.vue";
@@ -29,7 +29,7 @@ const maxOpinionChars = 1000;
 async function getOpinion() {
   let res;
   try {
-    res = await fetchy(`/api/activeDebates/getMyOpinion/${debateId}`, "GET", {});
+    res = await fetchy(`/api/debate/getMyOpinion/${debateId}`, "GET", {});
   } catch (_) {
     console.log("error");
     return;
@@ -65,7 +65,7 @@ async function submitOpinion() {
 async function deleteOpinion() {
   localStorage.removeItem("userOpinion");
   try {
-    await fetchy(`/api/activeDebates/deleteMyOpinion/${debateId}`, "DELETE", {});
+    await fetchy(`/api/debate/deleteMyOpinion/${debateId}`, "DELETE", {});
   } catch (_) {
     console.log("error");
     return;
@@ -107,7 +107,7 @@ async function editOpinion() {
       <textarea v-model="opinionText" class="textarea textarea-bordered h-24 font-base" placeholder="Develop your opinion..."></textarea>
       <label class="label">
         <span class="label-text"></span>
-        <span class="label-text-alt">({{ opinionText.length }}/{{ maxOpinionChars}})</span>
+        <span class="label-text-alt">({{ opinionText.length }}/{{ maxOpinionChars }})</span>
       </label>
     </div>
 

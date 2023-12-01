@@ -126,7 +126,7 @@ class Routes {
     return await Responses.opinions(await Phase.getExpiredByKey(new ObjectId(debateID)));
   }
 
-  @Router.patch("/activeDebates/deadline")
+  @Router.patch("/debate/changeDeadline")
   async editActiveDebateDeadline(debateID: ObjectId, newDeadline: Date) {
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
@@ -161,7 +161,7 @@ class Routes {
     }
   }
 
-  @Router.post("/activeDebates/submitOpinion")
+  @Router.post("/debate/submitOpinion")
   async submitOpinion(session: WebSessionDoc, debate: ObjectId, content: string, likertScale: string) {
     const user = WebSession.getUser(session);
     const completed = await Phase.expireOld();
@@ -170,29 +170,29 @@ class Routes {
     return await Debate.addOpinion(debate, user.toString(), content, likertScale);
   }
 
-  @Router.get("/activeDebates/matchOpinions")
+  @Router.get("/debate/matchOpinions")
   async matchParticipantToDifferentOpinions(debate: ObjectId) {
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
-    await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
+    await Phase.getPhaseByKey(debate); // checks if debate is active
     return await Debate.matchParticipantToDifferentOpinions(debate);
   }
 
-  @Router.post("/activeDebates/removeMatchedOpinion")
-  async removeMatchedOpinion(session: WebSessionDoc, debate: ObjectId, opinionId: string) {
+  @Router.post("/debate/removeMatchedOpinion")
+  async removeMatchedOpinion(session: WebSessionDoc, debate: string, opinionId: string) {
     const user = WebSession.getUser(session);
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
     return await Debate.removeDifferentOpinion(debate, user.toString(), opinionId);
   }
 
-  @Router.get("/activeDebates/getMyOpinion/:debateID")
-  async getMyOpinionForDebate(session: WebSessionDoc, debateID: ObjectId) {
+  @Router.get("/debate/getMyOpinion/:debateID")
+  async getMyOpinionForDebate(session: WebSessionDoc, debate: string) {
     const user = WebSession.getUser(session);
-    return await Debate.getOpinionForDebateByAuthor(debateID, user.toString());
+    return await Debate.getOpinionForDebateByAuthor(debate, user.toString());
   }
 
-  @Router.delete("/activeDebates/deleteMyOpinion/:debateID")
+  @Router.delete("/debate/deleteMyOpinion/:debateID")
   async deleteMyOpinionForDebate(session: WebSessionDoc, debateID: ObjectId) {
     const user = WebSession.getUser(session);
     return await Debate.deleteOneOpinion(debateID, user.toString());
