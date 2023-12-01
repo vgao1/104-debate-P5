@@ -160,11 +160,12 @@ export default class PhaseConcept {
    * @returns all the items that are past the review stage (phase 2)
    */
   public async expireOld() {
+    console.log("expire Old");
     const now = new Date();
-    const expired = await this.active.readMany({ deadline: { $lt: now } });
+    const activePhases = await this.active.readMany({});
     const reviewDone = [];
 
-    for (const phase of expired) {
+    for (const phase of activePhases) {
       const newDate: Date = phase.deadline;
       let newPhase = phase.curPhase;
 
@@ -179,7 +180,7 @@ export default class PhaseConcept {
       }
 
       // deciding the fate of the phase object
-      if (newDate < now) {
+      if (newPhase == 4) {
         await this.expired.createOne({ key: phase.key, curPhase: newPhase });
         await this.active.deleteOne({ _id: phase._id });
       } else {
