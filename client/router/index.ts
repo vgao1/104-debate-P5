@@ -2,15 +2,15 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import SuggestPromptViewVue from "@/views/SuggestPromptView.vue";
+import DebateView from "../views/DebateView.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
-import SettingView from "../views/SettingView.vue";
-import DebateView from "../views/DebateView.vue";
-import ReviewView from "../views/ReviewView.vue";
 import OpinionsView from "../views/OpinionsView.vue";
+import ReviewView from "../views/ReviewView.vue";
+import SettingView from "../views/SettingView.vue";
 import TestingView from "../views/TestingView.vue";
-import SuggestPromptViewVue from "@/views/SuggestPromptView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -43,6 +43,11 @@ const router = createRouter({
     {
       path: "/debates/:id/reviews/",
       name: "Review",
+      component: ReviewView,
+    },
+    {
+      path: "/debates/test/reviews",
+      name: "Test Review",
       component: ReviewView,
     },
     {

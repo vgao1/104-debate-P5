@@ -56,17 +56,18 @@ const sliderColor = computed(() => {
   return `rgb(${color.r}, ${color.g}, ${color.b})`;
 });
 
+// TODO: currently disable this functionality because of some bug
 // Update local value when prop changes
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    if (newValue) {
-      sliderValue.value = newValue;
-    } else {
-      sliderValue.value = 50;
-    }
-  },
-);
+// watch(
+//   () => props.modelValue,
+//   (newValue) => {
+//     if (newValue) {
+//       sliderValue.value = newValue;
+//     } else {
+//       sliderValue.value = 50;
+//     }
+//   },
+// );
 
 // Emit an event when sliderValue changes
 watch(sliderValue, (newValue) => {

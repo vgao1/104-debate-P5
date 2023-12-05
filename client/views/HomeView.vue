@@ -62,26 +62,17 @@ onBeforeMount(async () => {
         <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate.deadline)" />
       </TextContainer>
     </div>
-    <!-- <div v-for="id in debateIds" class="flex flex-col">
-      <TextContainer>
-        <DebatePrompt :id="id"/>
-      </TextContainer>
-    </div>     -->
 
     <TextContainer>
       <p class="text-base font-bold">Past debates</p>
     </TextContainer>
 
-    <div v-for="debate in historyDebates" class="flex flex-col" :key="debate._id">
+    <!-- TODO: ok to reverse past debate list to show more recent first? -->
+    <div v-for="debate in historyDebates.reverse()" class="flex flex-col" :key="debate._id">
       <TextContainer>
         <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate.deadline)" />
       </TextContainer>
     </div>
 
-    <!-- <div v-for="id in pastDebateIds" class="flex flex-col">
-      <TextContainer>
-        <DebatePrompt :id="id"/>
-      </TextContainer>
-    </div>     -->
   </div>
 </template>

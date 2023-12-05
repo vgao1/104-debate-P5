@@ -66,8 +66,8 @@ onBeforeMount(async () => {
       <section v-if="opinions.length > 0">
         <div v-for="opinion in opinions" :key="opinion._id" class="flex flex-col">
           <TextContainer>
-            <b class="text-sm">User Opinion: </b>
-            {{ opinion.content }}
+            <b class="text-sm">Opinion </b>
+            <p>{{ opinion.content }}</p>
           </TextContainer>
         </div>
       </section>
