@@ -13,7 +13,9 @@
 
     "rootDir": "../",
     "baseUrl": "./",
-    "outDir": "../dist-server/"
+    "outDir": "../dist-server/",
+
+    "allowJs": true
   },
   "include": ["./**/*.ts", "../api/index.ts"]
 }

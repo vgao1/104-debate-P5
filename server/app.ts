@@ -1,4 +1,3 @@
-import FriendConcept from "./concepts/friend";
 import PostConcept from "./concepts/post";
 import UserConcept from "./concepts/user";
 import WebSessionConcept from "./concepts/websession";
@@ -9,6 +8,5 @@ import DebateConcept from "./concepts/debate";
 export const WebSession = new WebSessionConcept();
 export const User = new UserConcept();
 export const Post = new PostConcept();
-export const Friend = new FriendConcept();
 export const Phase = new PhaseConcept();
 export const Debate = new DebateConcept();

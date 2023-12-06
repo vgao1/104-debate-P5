@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
+import { findBinaryMatrix } from "../matching";
 
 export interface DebateDoc extends BaseDoc {
   prompt: string;
@@ -120,6 +121,38 @@ export default class DebateConcept {
       }
     }
     return this.differentOpinionMatches.readMany({ debate: _id.toString() });
+  }
+
+  async matchOpinionsForReview(_id: ObjectId) {
+    const opinions = await this.opinions.readMany({ debate: _id.toString() });
+    // TODO: not enough opinions right now to test
+    // const likertScales = opinions.map((opinion) => opinion.likertScale);
+    // const N = opinions.length;
+    // console.log(opinions);
+
+    // for testing
+    const N = 50;  
+    // random int between 1 and 100
+    const likertScales = Array.from({length: N}, () => Math.floor(Math.random() * 100) + 1);
+    // max 3 reviews per user
+    const K = Math.min(3, N - 1);
+    
+    const assignmentMatrix = await findBinaryMatrix(N, K)
+    if (!assignmentMatrix) {
+      throw new NotFoundError("");
+    }
+    
+    for (let i = 0; i < assignmentMatrix.length; i++) {
+      // get indices where assignmentMatrix[i] == 1
+      const indices = assignmentMatrix[i].reduce((acc, cur, idx) => {
+        if (cur == 1) { acc.push(idx); }
+        return acc;
+      }, []);
+      console.log(`User ${i} has to review opinions: ${indices}`); 
+      
+      const opinionsToReview = indices.map((idx: number) => opinions[idx]);
+      console.log(`Opinions to review: ${opinionsToReview}`);
+    }
   }
 
   /**

@@ -110,7 +110,7 @@ for (let i = 0; i < numberOfSliders; i++) {
 
     <!-- <TextContainer v-if="debate.curPhase === 'Review'"> -->
     <TextContainer>
-      <b>Your review</b>
+      <b class="text-base">Your review</b>
       <p class="pb-2">How interesting is each opinion? </p>
       <div class="space-y-2">
         <div v-for="(sliderValue, index) in sliderValues" :key="index">
@@ -121,25 +121,27 @@ for (let i = 0; i < numberOfSliders; i++) {
     </TextContainer>
 
 
-    <p class="font-bold py-3 text-base">Revise your opinion</p>
-    <OpinionSlider v-model="revisedOpinionSliderValue" />
+    <div class="px-3">
+      <p class="font-bold py-3 text-base">Revise your opinion</p>
+      <OpinionSlider v-model="revisedOpinionSliderValue" />
 
-    <div class="w-full flex justify-between text-sm px-2">
-      <span>Disagree</span>
-      <span>Neutral</span>
-      <span>Agree</span>
-    </div>
+      <div class="w-full flex justify-between text-sm px-2">
+        <span>Disagree</span>
+        <span>Neutral</span>
+        <span>Agree</span>
+      </div>
 
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text font-bold"></span>
-        <span class="label-text-alt"></span>
-      </label>
-      <textarea v-model="opinionText" class="textarea textarea-bordered h-24 font-base" placeholder=""></textarea>
-      <label class="label">
-        <span class="label-text"></span>
-        <span class="label-text-alt">({{ opinionText.length }}/{{ maxOpinionChars }})</span>
-      </label>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-bold"></span>
+          <span class="label-text-alt"></span>
+        </label>
+        <textarea v-model="opinionText" class="textarea textarea-bordered h-24 font-base" placeholder="Write your opinion..."></textarea>
+        <label class="label">
+          <span class="label-text"></span>
+          <span class="label-text-alt">({{ opinionText.length }}/{{ maxOpinionChars }})</span>
+        </label>
+      </div>
     </div>
 
     <!-- TODO: temporarily comment this out for testing -->

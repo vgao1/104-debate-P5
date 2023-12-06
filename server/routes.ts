@@ -176,6 +176,10 @@ class Routes {
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
     await Phase.getPhaseByKey(debate); // checks if debate is active
+    
+    // TDOO: use new matching function
+    await Debate.matchOpinionsForReview(debate);
+    
     return await Debate.matchParticipantToDifferentOpinions(debate);
   }
 
