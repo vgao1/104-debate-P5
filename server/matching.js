@@ -1,11 +1,11 @@
 const GLPK = require('glpk.js');
 const glpk = GLPK();
 
-export function findBinaryMatrix(n, K) {
+export function findBinaryMatrix(n, K, W) {
     let lp = {
         name: 'BinaryMatrix',
         objective: {
-            direction: glpk.GLP_MIN,
+            direction: glpk.GLP_MAX,
             name: 'obj',
             vars: []
         },
@@ -17,7 +17,8 @@ export function findBinaryMatrix(n, K) {
     for (let i = 1; i <= n; i++) {
         for (let j = 1; j <= n; j++) {
             let name = `x${i}${j}`;
-            lp.objective.vars.push({ name: name, coef: 1 });
+            // lp.objective.vars.push({ name: name, coef: 1 });
+            lp.objective.vars.push({ name: name, coef: W[i-1][j-1] });
             lp.binaries.push(name);
         }
     }
