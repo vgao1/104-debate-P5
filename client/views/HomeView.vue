@@ -44,6 +44,7 @@ function timeLeft(deadline: string) {
 }
 
 onBeforeMount(async () => {
+  console.log("HomeView");
   await getDebates();
   await getHistoryDebates();
   loaded.value = true;
@@ -73,6 +74,5 @@ onBeforeMount(async () => {
         <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate.deadline)" />
       </TextContainer>
     </div>
-
   </div>
 </template>
