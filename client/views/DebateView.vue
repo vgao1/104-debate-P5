@@ -16,8 +16,7 @@ const loaded = ref(false);
 const timeLeft = ref();
 const timeUnit = ref("hr");
 const { isLoggedIn } = storeToRefs(useUserStore());
-console.log(route.path.slice(-1) === "/");
-const routePath = (route.path.slice(-1) === "/" ? route.path.substring(0, route.path.length - 1) : route.path) + "/opinions";
+
 async function getDebate() {
   let res;
   try {
@@ -67,18 +66,16 @@ onBeforeMount(async () => {
       <BackArrowHeader text="Debate" />
     </TextContainer>
 
-    <section v-if="debate.curPhase === 'Start'">
-      <TextContainer>
-        <div class="flex justify-center">
-          <div>
-            <p class="text-base">
-              Due at <b>{{ debate.deadline }}</b>
-            </p>
-            <p class="text-sm">{{ timeLeft + " " + timeUnit }} remaining</p>
-          </div>
+    <TextContainer>
+      <div class="flex justify-center">
+        <div>
+          <p class="text-base">
+            Due at <b>{{ debate.deadline }}</b>
+          </p>
+          <p class="text-sm">{{ timeLeft + " " + timeUnit }} remaining</p>
         </div>
-      </TextContainer>
-    </section>
+      </div>
+    </TextContainer>
 
     <TextContainer>
       <div class="border-l-0 border-neutral-300 space-y-1">
@@ -90,14 +87,8 @@ onBeforeMount(async () => {
       </div>
     </TextContainer>
 
-    <TextContainer v-if="debate.curPhase === 'Start'">
+    <TextContainer>
       <OpinionForm />
     </TextContainer>
-    <div v-else-if="debate.curPhase === 'Proposed'">
-      <TextContainer> Opinion Submission page will be unlocked when a debate is initialized with this prompt. </TextContainer>
-    </div>
-    <div v-else>
-      <TextContainer> Debate is past Start phase where users can submit opinions. Please view debate <a style="color: blue" :href="routePath">here</a> </TextContainer>
-    </div>
   </div>
 </template>

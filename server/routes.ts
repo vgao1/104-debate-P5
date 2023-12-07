@@ -123,7 +123,6 @@ class Routes {
   async getExpiredDebateById(debateID: ObjectId) {
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
-    console.log(await Responses.opinions(await Phase.getExpiredByKey(new ObjectId(debateID))));
     return await Responses.opinions(await Phase.getExpiredByKey(new ObjectId(debateID)));
   }
 
