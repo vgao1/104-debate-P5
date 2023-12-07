@@ -7,6 +7,7 @@
     "source.fixAll": false,
     "source.organizeImports": true
   },
+  
   "typescript.preferences.importModuleSpecifier": "project-relative",
 "editor.detectIndentation": false,
 "editor.tabSize": 2

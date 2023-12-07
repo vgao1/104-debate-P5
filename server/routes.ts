@@ -2,8 +2,9 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Debate, Phase, Post, User, WebSession } from "./app";
+import { Debate, Phase, Post, Review, User, WebSession } from "./app";
 import { PostDoc, PostOptions } from "./concepts/post";
+import { ReviewDoc } from "./concepts/review";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
@@ -61,7 +62,7 @@ class Routes {
     return await User.delete(user);
   }
 
-  ////////////////////////// DEBATE //////////////////////////
+  ////////////////////////// POSTS //////////////////////////
 
   @Router.get("/posts")
   async getPosts(author?: string) {
@@ -148,7 +149,24 @@ class Routes {
     return Phase.changeMaxPhase(newMax);
   }
 
-  ////////////////////////// DEBATE //////////////////////////
+  ////////////////////////// REVIEW + OPINION SYNCS //////////////////////////
+
+  @Router.post("/opinion/submitReview")
+  async submitReview(session: WebSessionDoc, opinion: ObjectId, score: number) {
+    const user = WebSession.getUser(session);
+    return await (Review.create(user.toString(), opinion.toString(), score));
+  }
+
+  @Router.patch("/reviews/:_id")
+  async updateReview(session: WebSessionDoc, _id: ObjectId, update: Partial<ReviewDoc>) {
+    const user = WebSession.getUser(session);
+    await Review.isReviewer(_id, user.toString())
+    return await Review.update(_id, update);
+  }
+
+
+
+  ////////////////////////// DEBATE + SYNCS //////////////////////////
 
   @Router.post("/debate/newPrompt")
   async suggestPrompt(prompt: string, category: string) {

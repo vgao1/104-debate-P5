@@ -36,6 +36,15 @@ export default class ReviewConcept {
     return await this.getReviews({ reviewer });
   }
 
+  async isReviewer(_id: ObjectId, user: string) {
+    const reviewObj = await (this.reviews.readOne({ _id, reviewer: user}));
+    if (reviewObj) {
+      return true;
+    } else {
+      throw new NotAllowedError("You cannot edit other people's reviews!");
+    }
+  }
+
   async update(_id: ObjectId, update: Partial<ReviewDoc>) {
     await this.reviews.updateOne({ _id }, update);
     return { msg: "Review successfully updated!" };
