@@ -25,6 +25,7 @@ export default class WebSessionConcept {
   }
 
   getUser(session: WebSessionDoc) {
+    console.log("in get user");
     this.isLoggedIn(session);
     return new ObjectId(session.user);
   }
