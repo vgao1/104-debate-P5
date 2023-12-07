@@ -158,13 +158,20 @@ class Routes {
   }
 
   @Router.patch("/reviews/:_id")
-  async updateReview(session: WebSessionDoc, _id: ObjectId, update: Partial<ReviewDoc>) {
+  async updateReview(session: WebSessionDoc, _id: ObjectId, update: Partial<ReviewDoc>, debateId: string) {
     const user = WebSession.getUser(session);
-    await Review.isReviewer(_id, user.toString())
-    return await Review.update(_id, update);
+    try {
+      const inReviewPhase = ((await Phase.getPhaseByKey(new ObjectId(debateId)))?.curPhase === 1)
+      if (inReviewPhase) {
+        await Review.isReviewer(_id, user.toString());
+        return await Review.update(_id, update);
+      } else {
+        return { msg: "This review's debate is not in the Review phase." }
+      }
+    } catch (e) {
+      return e
+    }
   }
-
-
 
   ////////////////////////// DEBATE + SYNCS //////////////////////////
 
