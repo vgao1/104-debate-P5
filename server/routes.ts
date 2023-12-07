@@ -154,22 +154,22 @@ class Routes {
   @Router.post("/opinion/submitReview")
   async submitReview(session: WebSessionDoc, opinion: ObjectId, score: number) {
     const user = WebSession.getUser(session);
-    return await (Review.create(user.toString(), opinion.toString(), score));
+    return await Review.create(user.toString(), opinion.toString(), score);
   }
 
   @Router.patch("/reviews/:_id")
   async updateReview(session: WebSessionDoc, _id: ObjectId, update: Partial<ReviewDoc>, debateId: string) {
     const user = WebSession.getUser(session);
     try {
-      const inReviewPhase = ((await Phase.getPhaseByKey(new ObjectId(debateId)))?.curPhase === 1)
+      const inReviewPhase = (await Phase.getPhaseByKey(new ObjectId(debateId)))?.curPhase === 1;
       if (inReviewPhase) {
         await Review.isReviewer(_id, user.toString());
         return await Review.update(_id, update);
       } else {
-        return { msg: "This review's debate is not in the Review phase." }
+        return { msg: "This review's debate is not in the Review phase." };
       }
     } catch (e) {
-      return e
+      return e;
     }
   }
 
