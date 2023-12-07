@@ -1,7 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
-import { findBinaryMatrix } from "../matching";
 
 export interface DebateDoc extends BaseDoc {
   prompt: string;
@@ -121,57 +120,6 @@ export default class DebateConcept {
       }
     }
     return this.differentOpinionMatches.readMany({ debate: _id.toString() });
-  }
-
-  async matchOpinionsForReview(_id: ObjectId) {
-    const opinions = await this.opinions.readMany({ debate: _id.toString() });
-    // TODO: not enough opinions right now to test
-    // const likertScales = opinions.map((opinion) => opinion.likertScale);
-    // const N = opinions.length;
-    // console.log(opinions);
-
-    // Testing
-    const N = 50;  
-    // Testing: random int between 1 and 100
-    const likertScales = Array.from({length: N}, () => Math.floor(Math.random() * 100) + 1);
-    
-    // take the absolute value of the difference between two likert scales
-    const dissimilarityMatrix = Array.from({length: N}, () => Array.from({length: N}, () => 0));
-    for (let i = 0; i < N; i++) {
-      for (let j = 0; j < N; j++) {
-        dissimilarityMatrix[i][j] = Math.abs(likertScales[i] - likertScales[j]);
-      }
-    }
-
-    // max 3 reviews per user
-    const K = Math.min(3, N - 1);
-
-    // find assignment of opinions to reviewers to maximize the sum of the dissimilarities
-    const assignmentMatrix = await findBinaryMatrix(N, K, dissimilarityMatrix);
-    if (!assignmentMatrix) {
-      throw new NotFoundError("");
-    }
-    
-    const dissimilarities = [];
-    for (let i = 0; i < assignmentMatrix.length; i++) {
-      // get indices where assignmentMatrix[i] == 1
-      const indices = assignmentMatrix[i].reduce((acc, cur, idx) => {
-        if (cur == 1) { acc.push(idx); }
-        return acc;
-      }, []);
-      // compute some stats for debugging
-      console.log(`User ${i} has to review opinions: ${indices}`); 
-      console.log(`Likertscale: yours:${likertScales[i]}, to review: ${indices.map((idx: number) => likertScales[idx])}, mean diff: ${indices.map((idx: number) => Math.abs(likertScales[i] - likertScales[idx])).reduce((acc: number, cur: number) => acc + cur, 0) / indices.length}`);
-      console.log("--------------------------------------------")
-      dissimilarities.push(indices.map((idx: number) => Math.abs(likertScales[i] - likertScales[idx])).reduce((acc: number, cur: number) => acc + cur, 0) / indices.length);
-
-      // TODO
-      const opinionsToReview = indices.map((idx: number) => opinions[idx]);
-      // console.log(`Opinions to review: ${opinionsToReview}`);
-    }
-
-    // this should be as large as possible
-    console.log(`Mean dissimilarity: ${dissimilarities.reduce((acc: number, cur: number) => acc + cur, 0) / N}`);
   }
 
   /**
