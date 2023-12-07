@@ -8,7 +8,6 @@ import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import OpinionsView from "../views/OpinionsView.vue";
-import ReviewView from "../views/ReviewView.vue";
 import SettingView from "../views/SettingView.vue";
 import TestingView from "../views/TestingView.vue";
 
@@ -39,16 +38,6 @@ const router = createRouter({
       path: "/suggest",
       name: "Suggest",
       component: SuggestPromptViewVue,
-    },
-    {
-      path: "/debates/:id/reviews/",
-      name: "Review",
-      component: ReviewView,
-    },
-    {
-      path: "/debates/test/reviews",
-      name: "Test Review",
-      component: ReviewView,
     },
     {
       path: "/setting",
