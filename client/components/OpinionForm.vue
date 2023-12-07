@@ -62,6 +62,7 @@ async function submitOpinion() {
     path: "/",
   });
 }
+
 async function deleteOpinion() {
   localStorage.removeItem("userOpinion");
   try {

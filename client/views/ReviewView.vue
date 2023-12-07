@@ -2,11 +2,11 @@
 import BackArrowHeader from "@/components/Nav/BackArrowHeader.vue";
 import OpinionSlider from "@/components/OpinionSlider.vue";
 import TextContainer from "@/components/TextContainer.vue";
-import { ref, watch, onBeforeMount } from "vue";
-import { useRoute } from "vue-router";
-import { fetchy } from "@/utils/fetchy";
 import { useUserStore } from "@/stores/user";
+import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
+import { onBeforeMount, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import router from "../router";
 
 // const totalValue = 100;
@@ -25,7 +25,6 @@ const opinionText = ref("");
 const loaded = ref(false);
 const { isLoggedIn } = storeToRefs(useUserStore());
 
-
 // TODO: get the 3 assigned opinions for the user
 async function getDebate() {
   let res;
@@ -37,7 +36,7 @@ async function getDebate() {
     console.log("error");
     try {
       res = await fetchy(`/api/historyDebates/${debateId}`, "GET", {});
-      console.log(res)
+      console.log(res);
       debate.value = { curPhase: res.curPhase, prompt: res.prompt, category: res.category };
       opinions.value = res.opinions;
     } catch (_) {
@@ -82,6 +81,9 @@ for (let i = 0; i < numberOfSliders; i++) {
     },
   );
 }
+
+//Placeholder to see if deployment error resolves
+async function submitOpinion() {}
 </script>
 
 <template>
@@ -102,16 +104,15 @@ for (let i = 0; i < numberOfSliders; i++) {
 
     <div v-for="(opinion, index) in opinions" :key="opinion._id" class="flex flex-col">
       <TextContainer>
-          <b class="text-sm">Opinion {{ index+1 }}</b>
-          <p>{{ opinion.content }}</p>
+        <b class="text-sm">Opinion {{ index + 1 }}</b>
+        <p>{{ opinion.content }}</p>
       </TextContainer>
-
     </div>
 
     <!-- <TextContainer v-if="debate.curPhase === 'Review'"> -->
     <TextContainer>
       <b class="text-base">Your review</b>
-      <p class="pb-2">How interesting is each opinion? </p>
+      <p class="pb-2">How interesting is each opinion?</p>
       <div class="space-y-2">
         <div v-for="(sliderValue, index) in sliderValues" :key="index">
           Opinion {{ index + 1 }}
@@ -119,7 +120,6 @@ for (let i = 0; i < numberOfSliders; i++) {
         </div>
       </div>
     </TextContainer>
-
 
     <div class="px-3">
       <p class="font-bold py-3 text-base">Revise your opinion</p>
@@ -156,5 +156,5 @@ for (let i = 0; i < numberOfSliders; i++) {
     <div class="flex justify-center space-x-2 pt-3">
       <button @click="submitOpinion" class="btn">Submit</button>
     </div>
-</div>
+  </div>
 </template>

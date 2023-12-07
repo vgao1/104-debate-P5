@@ -41,7 +41,6 @@ onBeforeMount(async () => {
   } else {
     await getOpinions();
     loaded.value = true;
-    console.log(loaded.value && debatePhase.value === "Recently Completed");
   }
 });
 </script>
