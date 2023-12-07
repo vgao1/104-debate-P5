@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
 import { onBeforeMount, ref } from "vue";
-import { RouterView, useRoute } from "vue-router";
-import NavBottomBar from "./components/Nav/NavBottomBar.vue";
+import { useRoute } from "vue-router";
 
 const userStore = useUserStore();
 const currentRoute = useRoute();
@@ -28,10 +27,7 @@ function getRouteName() {
 
 <template>
   <!-- TODO: can't specify max width in the div instead of each child? -->
-  <div class="">
-    <RouterView class="max-w-sm mx-auto pb-20" />
-    <NavBottomBar v-if="getRouteName()" :activeIcon="currentRouteName" class="max-w-sm mx-auto" />
-  </div>
+  <div class="">Test without navbar</div>
 </template>
 
 <style scoped>
