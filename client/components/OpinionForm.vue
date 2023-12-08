@@ -29,7 +29,7 @@ const maxOpinionChars = 1000;
 async function getOpinion() {
   let res;
   try {
-    res = await fetchy(`/api/debate/getMyOpinion/${debateId}`, "GET", {});
+    res = await fetchy(`/api/debate/getMyOpinion/${debateId}`, "GET", { alert: false });
   } catch (_) {
     console.log("error");
     return;
