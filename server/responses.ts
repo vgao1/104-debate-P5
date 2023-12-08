@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { Debate } from "./app";
 import { DifferentOpinionMatchDoc } from "./concepts/debate";
-import { ActivePhaseDoc, BasePhaseDoc, KeyExistsError, NoPhaseError } from "./concepts/phase";
+import { ActivePhaseDoc, BasePhaseDoc, KeyExistsError } from "./concepts/phase";
 import { Router } from "./framework/router";
 
 const PHASES = ["Proposed", "Start", "Review", "Recently Completed", "Archived"];
@@ -52,13 +52,6 @@ export default class Responses {
 }
 
 Router.registerError(KeyExistsError, async (e) => {
-  // const debateObj = await Debate.getDebateById(e.key);
-  // const promptFormatted = '\"' + debate.prompt + '\"';
-  // return e.formatWith(promptFormatted);
-  return e; // DELETE ME
-});
-
-Router.registerError(NoPhaseError, async (e) => {
   // const debateObj = await Debate.getDebateById(e.key);
   // const promptFormatted = '\"' + debate.prompt + '\"';
   // return e.formatWith(promptFormatted);
