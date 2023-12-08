@@ -2,11 +2,68 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
+import OpenAI from "openai";
 import { Debate, Phase, Review, User, WebSession } from "./app";
 import { ReviewDoc } from "./concepts/review";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
+
+const gptKey = process.env.OPENAI_KEY;
+const openai = new OpenAI({ apiKey: gptKey });
+
+async function respondToPrompt(prompt: string, type: string) {
+  const content =
+    "Write an opinion on the following debate prompt that's " +
+    type +
+    " and give your opinion a score from 0 (against) to 100 (for): " +
+    prompt +
+    ". The answer should be max 200 words. It should be in the following format: SCORE //// ANSWER";
+  const completion = await openai.chat.completions.create({
+    messages: [{ role: "system", content: content }],
+    model: "gpt-3.5-turbo",
+  });
+  return completion.choices[0].message;
+}
+
+async function generateTenOpinions(prompt: string, debate: ObjectId, revised = false) {
+  const types = [
+    ["neutral", "6571817651523cdf6a8136dd"],
+    ["very against it", "65726db8402e12cdd39b24a1"],
+    ["moderately against it", "65726dd2402e12cdd39b24a3"],
+    ["extremely against it", "65728b0b809938f29d015c9f"],
+    ["very for it", "65728bdd613d235ac34da56f"],
+    ["moderately for it", "65728cc9809938f29d015ca3"],
+    ["extremely for it", "657299ced39910b7ab256800"],
+    ["against it", "657299f9d39910b7ab256802"],
+    ["for it", "65729a29d39910b7ab256803"],
+    ["unsure about their opinion", "65729a4ad39910b7ab256804"],
+  ];
+
+  let lenOps = 0;
+  let opinions: ObjectId[] = [];
+  if (revised) {
+    opinions = await Debate.getOriginalOpinionsByDebate(debate);
+    lenOps = opinions.length;
+  }
+
+  for (const [type, user] of types) {
+    const res = (await respondToPrompt(prompt, type)).content ?? "";
+    const likertScale = Number(res.split("////")[0]);
+    const content = res.split("////")[1];
+    if (content) {
+      await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
+      if (revised) {
+        const score = Math.random() * 150;
+        const opInd = Math.floor(Math.random() * lenOps);
+        await Review.create(user, debate.toString(), opinions[opInd].toString(), score);
+        await Debate.addRevisedOpinion(debate, user, content, likertScale);
+      } else {
+        await Debate.addOpinion(debate, user, content, likertScale);
+      }
+    }
+  }
+}
 
 const debateTopics = [
   ["Is space exploration worth the cost?", "Economics"],
@@ -230,6 +287,7 @@ class Routes {
     const response = await Debate.suggestPrompt(prompt, category);
     if (response) {
       await Phase.initialize(response.debateId);
+      await generateTenOpinions(prompt, response.debateId);
       return { msg: response.msg };
     }
   }
@@ -239,8 +297,11 @@ class Routes {
     const user = WebSession.getUser(session);
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
+    const prompt = (await Debate.getDebateById(new ObjectId(debate))).prompt;
     await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
-    return await Debate.addOpinion(debate, user.toString(), content, likertScale);
+    const resp = await Debate.addOpinion(debate, user.toString(), content, likertScale);
+    await generateTenOpinions(prompt, new ObjectId(debate), true);
+    return resp;
   }
 
   @Router.post("/debate/submitRevisedOpinion")
