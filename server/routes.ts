@@ -52,14 +52,18 @@ async function generateTenOpinions(prompt: string, debate: ObjectId, revised = f
     const likertScale = Number(res.split("////")[0]);
     const content = res.split("////")[1];
     if (content) {
-      await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
-      if (revised) {
-        const score = Math.random() * 150;
-        const opInd = Math.floor(Math.random() * lenOps);
-        await Review.create(user, debate.toString(), opinions[opInd].toString(), score);
-        await Debate.addRevisedOpinion(debate, user, content, likertScale);
-      } else {
-        await Debate.addOpinion(debate, user, content, likertScale);
+      try {
+        await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
+        if (revised) {
+          const score = Math.random() * 150;
+          const opInd = Math.floor(Math.random() * lenOps);
+          await Review.create(user, debate.toString(), opinions[opInd].toString(), score);
+          await Debate.addRevisedOpinion(debate, user, content, likertScale);
+        } else {
+          await Debate.addOpinion(debate, user, content, likertScale);
+        }
+      } catch {
+        console.log("failed at somethings");
       }
     }
   }
