@@ -47,6 +47,7 @@ onBeforeMount(async () => {
   console.log("HomeView");
   await getDebates();
   await getHistoryDebates();
+  // await fetchy("/api/debate/testerPrompts", "GET");
   loaded.value = true;
 });
 </script>

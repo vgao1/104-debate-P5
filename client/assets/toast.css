@@ -1,11 +1,12 @@
 .toast {
   position: fixed;
   top: 1em;
-  left: 50%;
+  left: 18%;
   transform: translate(-50%, 0);
   padding: 0.5em 1em;
   border-radius: 6px;
-  max-width: 60em;
+  max-width: 10vh;
+  max-height: 10vh;
   margin: 0 auto;
 
   color: #fff;

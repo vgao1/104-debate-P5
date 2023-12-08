@@ -16,6 +16,7 @@ const loaded = ref(false);
 const timeLeft = ref();
 const timeUnit = ref("hr");
 const { isLoggedIn } = storeToRefs(useUserStore());
+const routePath = (route.path.slice(-1) === "/" ? route.path.substring(0, route.path.length - 1) : route.path) + "/opinions";
 
 async function getDebate() {
   let res;
@@ -34,11 +35,11 @@ async function getDebate() {
     timeLeft.value = Math.floor((debateDeadline - currentTime) / 6e4);
     // no time left
     if (timeLeft.value <= 0) {
-      if (res.curPhase === "Review") {
+      if (res.curPhase === "Start") {
         void router.push({
           path: `/debates/${debateId}/reviews`,
         });
-      } else {
+      } else if (res.curPhase === "Review" || res.curPhase === "Recently Completed" || res.curPhase === "Archived") {
         void router.push({
           path: `/debates/${debateId}/opinions`,
         });
@@ -66,7 +67,7 @@ onBeforeMount(async () => {
       <BackArrowHeader text="Debate" />
     </TextContainer>
 
-    <TextContainer>
+    <TextContainer v-if="debate.curPhase === 'Start'">
       <div class="flex justify-center">
         <div>
           <p class="text-base">
@@ -77,7 +78,7 @@ onBeforeMount(async () => {
       </div>
     </TextContainer>
 
-    <TextContainer>
+    <TextContainer v-if="debate.curPhase">
       <div class="border-l-0 border-neutral-300 space-y-1">
         <div class="flex justify-between items-center">
           <b class="text-sm">{{ debate.category }}</b>
@@ -87,8 +88,15 @@ onBeforeMount(async () => {
       </div>
     </TextContainer>
 
-    <TextContainer>
+    <TextContainer v-if="debate.curPhase === 'Start'">
       <OpinionForm />
     </TextContainer>
+    <div v-else-if="debate.curPhase === 'Proposed'">
+      <TextContainer> Opinion Submission page will be unlocked when a debate is initialized with this prompt. </TextContainer>
+    </div>
+    <div v-else-if="debate.curPhase">
+      <TextContainer> Debate is past Start phase where users can submit opinions. Please view debate <a style="color: blue" :href="routePath">here</a> </TextContainer>
+    </div>
+    <TextContainer v-else> No debate with ID {{ debateId }} is found.</TextContainer>
   </div>
 </template>
