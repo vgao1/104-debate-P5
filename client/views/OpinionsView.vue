@@ -64,10 +64,13 @@ onBeforeMount(async () => {
 
     <div v-if="debatePhase === 'Recently Completed' || debatePhase === 'Archived'">
       <section v-if="opinions.length > 0">
+        <!-- TODO: sort by score by uncommenting this line -->
+        <!-- <div v-for="opinion in opinions" :key="opinion.score" class="flex flex-col"> -->
         <div v-for="opinion in opinions" :key="opinion._id" class="flex flex-col">
           <TextContainer>
             <b class="text-sm">User Opinion: </b>
             {{ opinion.content }}
+            <p class="text-sm-right"> {{ opinion.score || 0 }} Deltas</p>
           </TextContainer>
         </div>
       </section>
