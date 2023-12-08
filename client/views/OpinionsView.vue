@@ -66,7 +66,7 @@ onBeforeMount(async () => {
       <BackArrowHeader text="Debate" />
     </TextContainer>
 
-    <TextContainer>
+    <TextContainer v-if="debatePhase">
       <div class="border-l-0 border-neutral-300 space-y-1">
         <div class="flex justify-between items-center">
           <b class="text-sm">{{ category }}</b>
@@ -90,8 +90,11 @@ onBeforeMount(async () => {
     <div v-else-if="debatePhase === 'Start'">
       <TextContainer> Unavailable because debate is in Start phase where users submit opinions. Please view debate <a style="color: blue" href=".">here</a> </TextContainer>
     </div>
-    <div v-else>
+    <div v-else-if="debatePhase">
       <TextContainer> Opinion Submission page will be unlocked when a debate is initialized with this prompt. </TextContainer>
+    </div>
+    <div v-else>
+      <TextContainer> No debate with ID {{ debateId }} found. </TextContainer>
     </div>
   </div>
 </template>

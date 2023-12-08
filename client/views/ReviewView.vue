@@ -17,11 +17,9 @@ const route = useRoute();
 const debateId = route.params.id;
 const debate = ref<Record<string, string>>({});
 const opinions = ref<Array<Record<string, string>>>([]);
-
 const revisedOpinionSliderValue = ref(50);
 const maxOpinionChars = 1000;
 const opinionText = ref("");
-
 const loaded = ref(false);
 const { isLoggedIn } = storeToRefs(useUserStore());
 
@@ -92,7 +90,7 @@ async function submitOpinion() {}
       <BackArrowHeader text="Debate" />
     </TextContainer>
 
-    <TextContainer>
+    <TextContainer v-if="debate.curPhase">
       <div class="border-l-0 border-neutral-300 space-y-1">
         <div class="flex justify-between items-center">
           <b class="text-sm">{{ debate.category }}</b>
@@ -102,57 +100,57 @@ async function submitOpinion() {}
       </div>
     </TextContainer>
 
-    <div v-for="(opinion, index) in opinions" :key="opinion._id" class="flex flex-col">
-      <TextContainer>
-        <b class="text-sm">Opinion {{ index + 1 }}</b>
-        <p>{{ opinion.content }}</p>
-      </TextContainer>
-    </div>
+    <TextContainer v-if="debate.curPhase === 'Review'">
+      <div v-for="(opinion, index) in opinions" :key="opinion._id" class="flex flex-col">
+        <TextContainer>
+          <b class="text-sm">Opinion {{ index + 1 }}</b>
+          <p>{{ opinion.content }}</p>
+        </TextContainer>
+      </div>
 
-    <!-- <TextContainer v-if="debate.curPhase === 'Review'"> -->
-    <TextContainer>
-      <b>Your review</b>
-      <p class="pb-2">How interesting is each opinion?</p>
-      <div class="space-y-2">
-        <div v-for="(sliderValue, index) in sliderValues" :key="index">
-          Opinion {{ index + 1 }}
-          <OpinionSlider v-model="sliderValues[index]" />
+      <TextContainer>
+        <b>Your review</b>
+        <p class="pb-2">How interesting is each opinion?</p>
+        <div class="space-y-2">
+          <div v-for="(sliderValue, index) in sliderValues" :key="index">
+            Opinion {{ index + 1 }}
+            <OpinionSlider v-model="sliderValues[index]" />
+          </div>
         </div>
+      </TextContainer>
+
+      <p class="font-bold py-3 text-base">Revise your opinion</p>
+      <OpinionSlider v-model="revisedOpinionSliderValue" />
+
+      <div class="w-full flex justify-between text-sm px-2">
+        <span>Disagree</span>
+        <span>Neutral</span>
+        <span>Agree</span>
+      </div>
+
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-bold"></span>
+          <span class="label-text-alt"></span>
+        </label>
+        <textarea v-model="opinionText" class="textarea textarea-bordered h-24 font-base" placeholder=""></textarea>
+        <label class="label">
+          <span class="label-text"></span>
+          <span class="label-text-alt">({{ opinionText.length }}/{{ maxOpinionChars }})</span>
+        </label>
+      </div>
+
+      <div class="flex justify-center space-x-2 pt-3">
+        <button @click="submitOpinion" class="btn">Submit</button>
       </div>
     </TextContainer>
-
-    <p class="font-bold py-3 text-base">Revise your opinion</p>
-    <OpinionSlider v-model="revisedOpinionSliderValue" />
-
-    <div class="w-full flex justify-between text-sm px-2">
-      <span>Disagree</span>
-      <span>Neutral</span>
-      <span>Agree</span>
-    </div>
-
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text font-bold"></span>
-        <span class="label-text-alt"></span>
-      </label>
-      <textarea v-model="opinionText" class="textarea textarea-bordered h-24 font-base" placeholder=""></textarea>
-      <label class="label">
-        <span class="label-text"></span>
-        <span class="label-text-alt">({{ opinionText.length }}/{{ maxOpinionChars }})</span>
-      </label>
-    </div>
-
-    <!-- TODO: temporarily comment this out for testing -->
-    <!-- <TextContainer v-else-if="debate.curPhase === 'Recently Completed' || debate.curPhase === 'Archived'">
+    <TextContainer v-else-if="debate.curPhase === 'Recently Completed' || debate.curPhase === 'Archived'">
       Debate is past Review phase where users review other users' different opinions. Please view debate <a style="color: blue" href="./opinions">here</a>
     </TextContainer>
     <TextContainer v-else-if="debate.curPhase === 'Start'">
       Unavailable because debate is in Start phase where users submit opinions. Please view debate <a style="color: blue" href=".">here</a>
     </TextContainer>
-    <TextContainer v-else> Review Opinions page will be unlocked when a debate is initialized with this prompt. </TextContainer> -->
-
-    <div class="flex justify-center space-x-2 pt-3">
-      <button @click="submitOpinion" class="btn">Submit</button>
-    </div>
+    <TextContainer v-else-if="debate.curPhase"> Review Opinions page will be unlocked when a debate is initialized with this prompt. </TextContainer>
+    <TextContainer v-else>No debate with ID {{ debateId }} found.</TextContainer>
   </div>
 </template>
