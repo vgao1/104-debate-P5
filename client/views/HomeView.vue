@@ -11,7 +11,7 @@ const loaded = ref(false);
 async function getDebates() {
   let res;
   try {
-    res = await fetchy("/api/activeDebates", "GET", {});
+    res = await fetchy("/api/activeDebates", "GET", { alert: false });
   } catch (_) {
     return;
   }
@@ -21,7 +21,7 @@ async function getDebates() {
 async function getHistoryDebates() {
   let res;
   try {
-    res = await fetchy("/api/historyDebates", "GET", {});
+    res = await fetchy("/api/historyDebates", "GET", { alert: false });
   } catch (_) {
     return;
   }

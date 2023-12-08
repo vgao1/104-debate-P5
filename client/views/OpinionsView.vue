@@ -9,7 +9,7 @@ import { useRoute } from "vue-router";
 import router from "../router";
 
 const route = useRoute();
-const debateId = route.params.id;
+const debateId = typeof route.params.id === "string" ? route.params.id : "";
 const opinions = ref<Array<Record<string, string>>>([]);
 const loaded = ref(false);
 const debatePhase = ref("");
@@ -28,6 +28,10 @@ async function getOpinions() {
     return;
   }
 
+  for (let opinion of res.opinions) {
+    let query: Record<string, string> = { debateID: debateId, opinion: opinion._id };
+    opinion.score = await fetchy(`/api/reviews/delta`, "GET", { query });
+  }
   opinions.value = res.opinions;
   debatePhase.value = res.curPhase;
   category.value = res.category;
@@ -78,10 +82,11 @@ onBeforeMount(async () => {
 
     <div v-if="debatePhase === 'Recently Completed' || debatePhase === 'Archived'">
       <section v-if="opinions.length > 0">
-        <div v-for="opinion in opinions" :key="opinion._id" class="flex flex-col">
+        <div v-for="opinion in opinions" :key="opinion.score" class="flex flex-col">
           <TextContainer>
             <b class="text-sm">User Opinion: </b>
             {{ opinion.content }}
+            <p class="text-right">{{ opinion.score || 0 }} Deltas</p>
           </TextContainer>
         </div>
       </section>

@@ -10,8 +10,15 @@ export interface ReviewDoc extends BaseDoc {
   score: number;
 }
 
+export interface ScoreDoc extends BaseDoc {
+  debate: string;
+  opinion: string;
+  totalScore: number;
+}
+
 export default class ReviewConcept {
   public readonly reviews = new DocCollection<ReviewDoc>("reviews");
+  public readonly scores = new DocCollection<ScoreDoc>("scores");
 
   async create(reviewer: string, debate: string, opinion: string, score: number) {
     const _id = await this.reviews.createOne({ reviewer, debate, opinion, score });
@@ -76,6 +83,25 @@ export default class ReviewConcept {
       return existingReview.score;
     } else {
       return 50;
+    }
+  }
+
+  async uploadTotalScore(debate: string, opinion: string, score: number) {
+    const isScoreComputed = await this.scores.readOne({ debate, opinion });
+    if (!isScoreComputed) {
+      await this.scores.createOne({ debate, opinion, totalScore: score });
+      return { msg: "Successfully uploaded total score" };
+    } else {
+      return { msg: "Score already computed" };
+    }
+  }
+
+  async getDeltaForOpinion(debate: string, opinion: string) {
+    const existingScore = await this.scores.readOne({ debate, opinion });
+    if (existingScore) {
+      return existingScore.totalScore;
+    } else {
+      return 0;
     }
   }
 }

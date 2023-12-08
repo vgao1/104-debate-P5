@@ -245,6 +245,11 @@ class Routes {
     return await Debate.getScoreForOpinions(_ids as string[], scores as number[]);
   }
 
+  @Router.get("/reviews/delta")
+  async getComputedScore(debateID: string, opinion: string) {
+    return await Review.getDeltaForOpinion(debateID, opinion);
+  }
+
   @Router.post("/opinion/submitReview")
   async submitReview(session: WebSessionDoc, debateId: string, opinion: ObjectId, score: number) {
     const user = WebSession.getUser(session);
@@ -354,6 +359,11 @@ class Routes {
     await Debate.deleteMatchesForDebate(completed);
     await Phase.delete(new ObjectId(debateID));
     return await Debate.delete(new ObjectId(debateID));
+  }
+
+  @Router.post("/debate/computeScore")
+  async computeScore(debateID: string, opinion: string, score: number) {
+    return await Review.uploadTotalScore(debateID, opinion, score);
   }
 
   ////////////////////////TESTER///////////////////
