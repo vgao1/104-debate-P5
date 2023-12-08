@@ -78,10 +78,11 @@ onBeforeMount(async () => {
 
     <div v-if="debatePhase === 'Recently Completed' || debatePhase === 'Archived'">
       <section v-if="opinions.length > 0">
-        <div v-for="opinion in opinions" :key="opinion._id" class="flex flex-col">
+        <div v-for="opinion in opinions" :key="opinion.score" class="flex flex-col">
           <TextContainer>
             <b class="text-sm">User Opinion: </b>
             {{ opinion.content }}
+            <p class="text-right"> {{ opinion.score || 0 }} Deltas</p>
           </TextContainer>
         </div>
       </section>
