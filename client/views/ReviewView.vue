@@ -90,7 +90,7 @@ async function submitOpinion() {}
       <BackArrowHeader text="Debate" />
     </TextContainer>
 
-    <TextContainer>
+    <TextContainer v-if="debate.curPhase">
       <div class="border-l-0 border-neutral-300 space-y-1">
         <div class="flex justify-between items-center">
           <b class="text-sm">{{ debate.category }}</b>
@@ -150,6 +150,7 @@ async function submitOpinion() {}
     <TextContainer v-else-if="debate.curPhase === 'Start'">
       Unavailable because debate is in Start phase where users submit opinions. Please view debate <a style="color: blue" href=".">here</a>
     </TextContainer>
-    <TextContainer v-else> Review Opinions page will be unlocked when a debate is initialized with this prompt. </TextContainer>
+    <TextContainer v-else-if="debate.curPhase"> Review Opinions page will be unlocked when a debate is initialized with this prompt. </TextContainer>
+    <TextContainer v-else>No debate with ID {{ debateId }} found.</TextContainer>
   </div>
 </template>
