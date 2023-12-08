@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotAllowedError, NotFoundError } from "./errors";
+import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
 export interface DebateDoc extends BaseDoc {
   prompt: string;
@@ -11,8 +11,12 @@ export interface DebateDoc extends BaseDoc {
 export interface OpinionDoc extends BaseDoc {
   content: string;
   author: string;
-  likertScale: string;
+  likertScale: number;
   debate: string;
+}
+
+export interface RevisedOpinionDoc extends OpinionDoc {
+  originalOpinion: string;
 }
 
 export interface DifferentOpinionMatchDoc extends BaseDoc {
@@ -24,6 +28,7 @@ export interface DifferentOpinionMatchDoc extends BaseDoc {
 export default class DebateConcept {
   public readonly debates = new DocCollection<DebateDoc>("debates");
   public readonly opinions = new DocCollection<OpinionDoc>("opinions");
+  public readonly revisedOpinions = new DocCollection<RevisedOpinionDoc>("revised opinions");
   public readonly differentOpinionMatches = new DocCollection<DifferentOpinionMatchDoc>("opinion matches");
 
   async getDebateById(_id: ObjectId) {
@@ -53,7 +58,7 @@ export default class DebateConcept {
    * @param likerScale a number quantifying how much user agrees with prompt
    * @returns a message stating that opinion was added successfully or throws an error
    */
-  async addOpinion(_id: ObjectId, user: string, content: string, likertScale: string) {
+  async addOpinion(_id: ObjectId, user: string, content: string, likertScale: number) {
     const existingDebate = await this.getDebate(_id);
     if (!(await this.isParticipant(_id, user))) {
       const allParticipants = existingDebate.participants;
@@ -217,6 +222,54 @@ export default class DebateConcept {
     } else {
       throw new NotFoundError("");
     }
+  }
+
+  /**
+   * Finds all the original opinions for a given debate by its id
+   * @param debateID debate's id
+   * @returns an array of the original opinion ids
+   */
+  async getOriginalOpinionsByDebate(debateID: ObjectId) {
+    const ops = await this.opinions.readMany({ debate: debateID.toString() });
+    return ops.map((op) => op._id);
+  }
+
+  /**
+   * Calculates the total sum of the score for the opinions scored and inputed
+   * @param _ids string representation of ObjectIds of opinions
+   * @param scores numbers representing the score of the corresponding opinion
+   * in the _id array
+   * @returns a map object that maps a string version of an opinion _id to a score
+   * @throws BadValuesError if the number of _ids doesn't match the number of scores
+   * @throws NotFoundError if an opinion id doesn't correspond to a real opinion object
+   */
+  async getScoreForOpinions(_ids: string[], scores: number[]) {
+    if (_ids.length !== scores.length) {
+      throw new BadValuesError("The number of ids given doesn't match the number of scores given");
+    }
+    const totalScores: Map<string, number> = new Map();
+    for (const [i, _id] of _ids.entries()) {
+      const op = await this.opinions.readOne({ _id: new ObjectId(_id) });
+      if (!op) {
+        throw new NotFoundError("No opinion with the id " + _id + " exists");
+      }
+      const opScore = op.likertScale;
+      const revOp = await this.revisedOpinions.readOne({ originalOpinion: _id });
+      let revOpScore: number;
+      if (!revOp) {
+        revOpScore = opScore;
+      } else {
+        revOpScore = revOp.likertScale;
+      }
+      const val = totalScores.get(_id);
+      const newScore = (revOpScore - opScore) * scores[i];
+      if (val) {
+        totalScores.set(_id, val + newScore);
+      } else {
+        totalScores.set(_id, newScore);
+      }
+    }
+    return totalScores;
   }
 
   /**

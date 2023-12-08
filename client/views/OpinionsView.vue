@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import BackArrowHeader from "@/components/Nav/BackArrowHeader.vue";
 import TextContainer from "@/components/TextContainer.vue";
-import { useRoute } from "vue-router";
-import { fetchy } from "@/utils/fetchy";
-import { onBeforeMount, ref } from "vue";
 import { useUserStore } from "@/stores/user";
+import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
+import { onBeforeMount, ref, Ref } from "vue";
+import { useRoute } from "vue-router";
 import router from "../router";
 
 const route = useRoute();
@@ -15,6 +15,7 @@ const loaded = ref(false);
 const debatePhase = ref("");
 const prompt = ref("");
 const category = ref("");
+const deltas: Ref<Map<string, number>> = ref(new Map());
 
 const { isLoggedIn } = storeToRefs(useUserStore());
 
@@ -33,6 +34,18 @@ async function getOpinions() {
   prompt.value = res.prompt;
 }
 
+async function getDeltas() {
+  let res;
+  try {
+    res = await fetchy(`/api/reviews/deltas/${debateId}`, "GET");
+  } catch (_) {
+    console.log("error");
+    return;
+  }
+
+  deltas.value = res;
+}
+
 onBeforeMount(async () => {
   if (!isLoggedIn.value) {
     void router.push({
@@ -40,6 +53,7 @@ onBeforeMount(async () => {
     });
   } else {
     await getOpinions();
+    await getDeltas();
     loaded.value = true;
     console.log(loaded.value && debatePhase.value === "Recently Completed");
   }

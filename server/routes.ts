@@ -151,6 +151,13 @@ class Routes {
 
   ////////////////////////// REVIEW + OPINION SYNCS //////////////////////////
 
+  @Router.get("/reviews/deltas/:debateID")
+  async getDeltasForDebate(debateID: ObjectId) {
+    const opIDs = await Debate.getOriginalOpinionsByDebate(new ObjectId(debateID));
+    const [_ids, scores] = await Review.getInfoByIds(opIDs);
+    return await Debate.getScoreForOpinions(_ids as string[], scores as number[]);
+  }
+
   @Router.post("/opinion/submitReview")
   async submitReview(session: WebSessionDoc, opinion: ObjectId, score: number) {
     const user = WebSession.getUser(session);
@@ -187,7 +194,7 @@ class Routes {
   }
 
   @Router.post("/debate/submitOpinion")
-  async submitOpinion(session: WebSessionDoc, debate: ObjectId, content: string, likertScale: string) {
+  async submitOpinion(session: WebSessionDoc, debate: ObjectId, content: string, likertScale: number) {
     const user = WebSession.getUser(session);
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
