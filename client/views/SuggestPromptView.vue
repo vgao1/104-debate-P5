@@ -12,28 +12,27 @@ const loaded = ref(false);
 const maxCategoryChars = 40;
 const maxPromptChars = 200;
 
-
 async function submitSuggestion() {
   if (promptText.value === "") {
     errorText.value = "Please enter a prompt.";
-    return
+    return;
   }
   if (categoryText.value === "") {
     errorText.value = "Please enter a category.";
-    return
+    return;
   }
   try {
     await fetchy("/api/debate/newPrompt", "POST", {
       body: {
         prompt: promptText.value,
-        category: categoryText.value
+        category: categoryText.value,
       },
     });
   } catch (_) {
     errorText.value = "An error has occurred. Please try again.";
     return;
   }
-  errorText.value = ""
+  errorText.value = "";
   successText.value = "Your suggestion has been submitted!";
   promptText.value = "";
   categoryText.value = "";
@@ -49,7 +48,7 @@ onBeforeMount(async () => {
     <TextContainer>
       <p class="text-base font-bold">Suggest a debate</p>
     </TextContainer>
-    
+
     <label class="form-control w-full px-2">
       <div class="label">
         <span class="label-text">Category</span>
@@ -61,7 +60,6 @@ onBeforeMount(async () => {
         <span class="label-text-alt">({{ categoryText.length }}/{{ maxCategoryChars }})</span>
       </div>
     </label>
-
 
     <div class="form-control px-2">
       <label class="label">
@@ -80,14 +78,17 @@ onBeforeMount(async () => {
     </div>
 
     <div v-if="errorText !== ''" class="flex pt-4 text-red-500">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
       <p class="m-1">{{ errorText }}</p>
     </div>
 
     <div v-if="successText !== ''" class="flex pt-4 text-green-500">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
       <p class="m-1">{{ successText }}</p>
     </div>
-
   </div>
 </template>

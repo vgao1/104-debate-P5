@@ -30,7 +30,6 @@ export const useUserStore = defineStore(
       try {
         const { username } = await fetchy("/api/session", "GET", { alert: false });
         currentUsername.value = username;
-        console.log("username: " + username);
       } catch {
         currentUsername.value = "";
       }

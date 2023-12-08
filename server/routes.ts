@@ -189,9 +189,9 @@ class Routes {
   }
 
   @Router.post("/opinion/submitReview")
-  async submitReview(session: WebSessionDoc, opinion: ObjectId, score: number) {
+  async submitReview(session: WebSessionDoc, debateId: string, opinion: ObjectId, score: number) {
     const user = WebSession.getUser(session);
-    return await Review.create(user.toString(), opinion.toString(), score);
+    return await Review.create(user.toString(), debateId, opinion.toString(), score);
   }
 
   @Router.patch("/reviews/:_id")
@@ -210,6 +210,17 @@ class Routes {
     }
   }
 
+  @Router.delete("/reviews/:debateID")
+  async deleteReviews(session: WebSessionDoc, debateID: string) {
+    const user = WebSession.getUser(session);
+    return await Review.deleteByReviewer(user.toString(), debateID);
+  }
+
+  @Router.get("/review/score/")
+  async getScoreForReview(session: WebSessionDoc, debateID: string, opinion: string) {
+    const user = WebSession.getUser(session);
+    return await Review.getScoreByReviewer(user.toString(), debateID, opinion);
+  }
   ////////////////////////// DEBATE + SYNCS //////////////////////////
 
   @Router.post("/debate/newPrompt")
@@ -232,12 +243,22 @@ class Routes {
     return await Debate.addOpinion(debate, user.toString(), content, likertScale);
   }
 
-  @Router.get("/debate/matchOpinions")
-  async matchParticipantToDifferentOpinions(debate: ObjectId) {
+  @Router.post("/debate/submitRevisedOpinion")
+  async submitRevisedOpinion(session: WebSessionDoc, debate: ObjectId, content: string, likertScale: number) {
+    const user = WebSession.getUser(session);
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
-    await Phase.getPhaseByKey(debate); // checks if debate is active
-    return await Debate.matchParticipantToDifferentOpinions(debate);
+    await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
+    return await Debate.addRevisedOpinion(debate, user.toString(), content, likertScale);
+  }
+
+  @Router.post("/debate/matchOpinions")
+  async matchParticipantToDifferentOpinions(session: WebSessionDoc, debate: string) {
+    const user = WebSession.getUser(session);
+    const completed = await Phase.expireOld();
+    await Debate.deleteMatchesForDebate(completed);
+    await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
+    return await Responses.opinionContents(await Debate.matchParticipantToDifferentOpinions(debate, user.toString()));
   }
 
   @Router.post("/debate/removeMatchedOpinion")
@@ -252,6 +273,12 @@ class Routes {
   async getMyOpinionForDebate(session: WebSessionDoc, debateID: string) {
     const user = WebSession.getUser(session);
     return await Debate.getOpinionForDebateByAuthor(debateID, user.toString());
+  }
+
+  @Router.get("/debate/getMyRevisedOpinion/:debateID")
+  async getMyRevisedOpinionForDebate(session: WebSessionDoc, debateID: string) {
+    const user = WebSession.getUser(session);
+    return await Debate.getRevisedOpinionForDebateByAuthor(debateID, user.toString());
   }
 
   @Router.delete("/debate/deleteMyOpinion/:debateID")

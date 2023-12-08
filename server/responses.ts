@@ -1,4 +1,6 @@
+import { ObjectId } from "mongodb";
 import { Debate } from "./app";
+import { DifferentOpinionMatchDoc } from "./concepts/debate";
 import { ActivePhaseDoc, BasePhaseDoc, KeyExistsError, NoPhaseError } from "./concepts/phase";
 import { Router } from "./framework/router";
 
@@ -37,6 +39,15 @@ export default class Responses {
     const opinions = await Debate.getAllOpinionsForDebate(phase.key.toString());
     const debate = await Debate.getDebateById(phase.key);
     return { opinions, prompt: debate.prompt, category: debate.category, curPhase: PHASES[phase.curPhase] };
+  }
+
+  static async opinionContents(matchedOpinions: DifferentOpinionMatchDoc | null) {
+    if (!matchedOpinions) {
+      return matchedOpinions;
+    }
+    const opinions = matchedOpinions.matchedDifferentOpinions;
+    const opinionContents = await Promise.all(opinions.map(async (opinion) => await Debate.getOpinionContentById(new ObjectId(opinion))));
+    return opinionContents;
   }
 }
 
