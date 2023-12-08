@@ -25,10 +25,7 @@ export default class ReviewConcept {
   }
 
   async getByOpinion(opinion: ObjectId) {
-    const reviews = await this.reviews.readMany(
-      { opinion: opinion.toString()},
-      { sort: { score : -1 } }
-      );
+    const reviews = await this.reviews.readMany({ opinion: opinion.toString() }, { sort: { score: -1 } });
     return reviews;
   }
 
@@ -37,7 +34,7 @@ export default class ReviewConcept {
   }
 
   async isReviewer(_id: ObjectId, user: string) {
-    const reviewObj = await (this.reviews.readOne({ _id, reviewer: user}));
+    const reviewObj = await this.reviews.readOne({ _id, reviewer: user });
     if (reviewObj) {
       return true;
     } else {
