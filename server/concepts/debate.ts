@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotAllowedError, NotFoundError } from "./errors";
+import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
 export interface DebateDoc extends BaseDoc {
   prompt: string;
@@ -11,9 +11,11 @@ export interface DebateDoc extends BaseDoc {
 export interface OpinionDoc extends BaseDoc {
   content: string;
   author: string;
-  likertScale: string;
+  likertScale: number;
   debate: string;
 }
+
+export interface RevisedOpinionDoc extends OpinionDoc {}
 
 export interface DifferentOpinionMatchDoc extends BaseDoc {
   reviewer: string;
@@ -24,6 +26,7 @@ export interface DifferentOpinionMatchDoc extends BaseDoc {
 export default class DebateConcept {
   public readonly debates = new DocCollection<DebateDoc>("debates");
   public readonly opinions = new DocCollection<OpinionDoc>("opinions");
+  public readonly revisedOpinions = new DocCollection<RevisedOpinionDoc>("revised opinions");
   public readonly differentOpinionMatches = new DocCollection<DifferentOpinionMatchDoc>("opinion matches");
 
   async getDebateById(_id: ObjectId) {
@@ -53,7 +56,7 @@ export default class DebateConcept {
    * @param likerScale a number quantifying how much user agrees with prompt
    * @returns a message stating that opinion was added successfully or throws an error
    */
-  async addOpinion(_id: ObjectId, user: string, content: string, likertScale: string) {
+  async addOpinion(_id: ObjectId, user: string, content: string, likertScale: number) {
     const existingDebate = await this.getDebate(_id);
     if (!(await this.isParticipant(_id, user))) {
       const allParticipants = existingDebate.participants;
@@ -64,6 +67,25 @@ export default class DebateConcept {
       await this.opinions.updateOne({ author: user, debate: _id.toString() }, { content, likertScale });
     }
     return { msg: "Successfully added opinion!" };
+  }
+
+  /**
+   * Submits a user's revised written response and how strongly they agree with debate prompt
+   * @param _id the ObjectId of debate
+   * @param user the user submitting an opinion
+   * @param content the written response to prompt
+   * @param likerScale a number quantifying how much user agrees with prompt
+   * @returns a message stating that opinion was added successfully or throws an error
+   */
+  async addRevisedOpinion(_id: ObjectId, user: string, content: string, likertScale: number) {
+    const existingRevisedOpinion = await this.revisedOpinions.readOne({ author: user });
+    if (existingRevisedOpinion) {
+      await this.revisedOpinions.updateOne({ author: user, debate: _id.toString() }, { content, author: user, likertScale, debate: _id.toString() });
+      return { msg: "Successfully updated revised opinion!" };
+    } else {
+      await this.revisedOpinions.createOne({ content, author: user, likertScale, debate: _id.toString() });
+      return { msg: "Successfully added revised opinion!" };
+    }
   }
 
   /**
@@ -94,32 +116,36 @@ export default class DebateConcept {
    * @returns an array containing a document for each participant of debate and the different
    * opinions they are matched to
    */
-  async matchParticipantToDifferentOpinions(_id: ObjectId) {
-    const allOpinions = await this.opinions.readMany({ debate: _id.toString() });
-    for (const opinion of allOpinions) {
-      for (const otherOpinion of allOpinions) {
-        const opinionObj = await this.opinions.readOne({ _id: opinion._id });
-        const otherOpinionObj = await this.opinions.readOne({ _id: otherOpinion._id });
-        if (!opinionObj || !otherOpinionObj) {
-          throw new NotFoundError("");
-        } else {
-          if (opinionObj.likertScale !== otherOpinionObj.likertScale) {
-            const opinionObjAuthor = opinionObj.author;
-            const participantMatchedOpinions = await this.differentOpinionMatches.readOne({ reviewer: opinionObjAuthor, debate: _id.toString() });
+  async matchParticipantToDifferentOpinions(_id: string, reviewer: string) {
+    const existingMatchesForDebate = await this.differentOpinionMatches.readMany({ debate: _id.toString(), reviewer });
+    if (existingMatchesForDebate.length == 0) {
+      const allOpinions = await this.opinions.readMany({ debate: _id.toString() });
+      const reviewersOpinion = await this.opinions.readOne({ debate: _id, author: reviewer });
+      if (reviewersOpinion) {
+        const reviewersLikert = reviewersOpinion.likertScale;
+        for (const opinion of allOpinions) {
+          const opinionObj = await this.opinions.readOne({ _id: opinion._id });
+          if (opinionObj && opinionObj.likertScale != reviewersLikert) {
+            const participantMatchedOpinions = await this.differentOpinionMatches.readOne({ reviewer: reviewer, debate: _id.toString() });
             if (participantMatchedOpinions) {
-              if (!participantMatchedOpinions.matchedDifferentOpinions.includes(otherOpinion._id.toString())) {
+              if (!participantMatchedOpinions.matchedDifferentOpinions.includes(opinionObj._id.toString())) {
                 const matchedOpinions = participantMatchedOpinions.matchedDifferentOpinions;
-                matchedOpinions.push(otherOpinion._id.toString());
-                await this.differentOpinionMatches.updateOne({ reviewer: opinionObjAuthor, debate: _id.toString() }, { matchedDifferentOpinions: matchedOpinions });
+                matchedOpinions.push(opinionObj._id.toString());
+                await this.differentOpinionMatches.updateOne({ reviewer: reviewer, debate: _id.toString() }, { matchedDifferentOpinions: matchedOpinions });
               }
             } else {
-              await this.differentOpinionMatches.createOne({ reviewer: opinionObjAuthor, debate: _id.toString(), matchedDifferentOpinions: [otherOpinion._id.toString()] });
+              await this.differentOpinionMatches.createOne({ reviewer: reviewer, debate: _id.toString(), matchedDifferentOpinions: [opinionObj._id.toString()] });
             }
           }
         }
+        console.log(await this.differentOpinionMatches.readOne({ debate: _id.toString(), reviewer }));
+        return await this.differentOpinionMatches.readOne({ debate: _id.toString(), reviewer });
+      } else {
+        throw new NotAllowedError("User didn't submit an opinion, so they can't review opinions");
       }
+    } else {
+      return await this.differentOpinionMatches.readOne({ debate: _id.toString(), reviewer });
     }
-    return this.differentOpinionMatches.readMany({ debate: _id.toString() });
   }
 
   /**
@@ -174,6 +200,14 @@ export default class DebateConcept {
     }
   }
 
+  async getRevisedOpinionForDebateByAuthor(debate: string, author: string) {
+    const existingOpinion = await this.revisedOpinions.readOne({ author, debate });
+    if (existingOpinion) {
+      return { content: existingOpinion.content, buttonText: "Update" };
+    } else {
+      return { content: "", buttonText: "Submit" };
+    }
+  }
   /**
    * Removes a participant from a debate
    * @param _id the ObjectId of debate
@@ -220,6 +254,54 @@ export default class DebateConcept {
   }
 
   /**
+   * Finds all the original opinions for a given debate by its id
+   * @param debateID debate's id
+   * @returns an array of the original opinion ids
+   */
+  async getOriginalOpinionsByDebate(debateID: ObjectId) {
+    const ops = await this.opinions.readMany({ debate: debateID.toString() });
+    return ops.map((op) => op._id);
+  }
+
+  /**
+   * Calculates the total sum of the score for the opinions scored and inputed
+   * @param _ids string representation of ObjectIds of opinions
+   * @param scores numbers representing the score of the corresponding opinion
+   * in the _id array
+   * @returns a map object that maps a string version of an opinion _id to a score
+   * @throws BadValuesError if the number of _ids doesn't match the number of scores
+   * @throws NotFoundError if an opinion id doesn't correspond to a real opinion object
+   */
+  async getScoreForOpinions(_ids: string[], scores: number[]) {
+    if (_ids.length !== scores.length) {
+      throw new BadValuesError("The number of ids given doesn't match the number of scores given");
+    }
+    const totalScores: Map<string, number> = new Map();
+    for (const [i, _id] of _ids.entries()) {
+      const op = await this.opinions.readOne({ _id: new ObjectId(_id) });
+      if (!op) {
+        throw new NotFoundError("No opinion with the id " + _id + " exists");
+      }
+      const opScore = op.likertScale;
+      const revOp = await this.revisedOpinions.readOne({ originalOpinion: _id });
+      let revOpScore: number;
+      if (!revOp) {
+        revOpScore = opScore;
+      } else {
+        revOpScore = revOp.likertScale;
+      }
+      const val = totalScores.get(_id);
+      const newScore = (revOpScore - opScore) * scores[i];
+      if (val) {
+        totalScores.set(_id, val + newScore);
+      } else {
+        totalScores.set(_id, newScore);
+      }
+    }
+    return totalScores;
+  }
+
+  /**
    * Removes debate and all opinions associated with debate
    * @param _id the objectId of debate
    * @returns an object containing a success message
@@ -249,6 +331,15 @@ export default class DebateConcept {
   async getAllOpinionsForDebate(debate: string) {
     const allOpinions = await this.opinions.readMany({ debate });
     return allOpinions;
+  }
+
+  async getOpinionContentById(_id: ObjectId) {
+    const existingOpinion = await this.opinions.readOne({ _id });
+    if (existingOpinion) {
+      return { opinionId: _id.toString(), content: existingOpinion.content };
+    } else {
+      throw new NotFoundError("Opinion not found!");
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import { NotAllowedError } from "./errors";
 
 export interface ReviewDoc extends BaseDoc {
   reviewer: string;
+  debate: string;
   opinion: string;
   score: number;
 }
@@ -12,8 +13,8 @@ export interface ReviewDoc extends BaseDoc {
 export default class ReviewConcept {
   public readonly reviews = new DocCollection<ReviewDoc>("reviews");
 
-  async create(reviewer: string, opinion: string, score: number) {
-    const _id = await this.reviews.createOne({ reviewer, opinion, score });
+  async create(reviewer: string, debate: string, opinion: string, score: number) {
+    const _id = await this.reviews.createOne({ reviewer, debate, opinion, score });
     return { msg: "Review successfully created!", review: await this.reviews.readOne({ _id }) };
   }
 
@@ -27,6 +28,19 @@ export default class ReviewConcept {
   async getByOpinion(opinion: ObjectId) {
     const reviews = await this.reviews.readMany({ opinion: opinion.toString() }, { sort: { score: -1 } });
     return reviews;
+  }
+
+  async getInfoByIds(opinions: ObjectId[]) {
+    const _ids: string[] = [];
+    const scores: number[] = [];
+    for (const op of opinions) {
+      const reviews = await this.reviews.readMany({ opinion: op.toString() }, { sort: { score: -1 } });
+      for (const review of reviews) {
+        _ids.push(review.opinion);
+        scores.push(review.score);
+      }
+    }
+    return [_ids, scores];
   }
 
   async getByAuthor(reviewer: string) {
@@ -50,6 +64,19 @@ export default class ReviewConcept {
   async delete(_id: ObjectId) {
     await this.reviews.deleteOne({ _id });
     return { msg: "Review deleted successfully!" };
+  }
+
+  async deleteByReviewer(reviewer: string, debate: string) {
+    await this.reviews.deleteMany({ reviewer, debate });
+  }
+
+  async getScoreByReviewer(reviewer: string, debate: string, opinion: string) {
+    const existingReview = await this.reviews.readOne({ reviewer, debate, opinion });
+    if (existingReview) {
+      return existingReview.score;
+    } else {
+      return 50;
+    }
   }
 }
 
