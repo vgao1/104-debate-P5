@@ -97,6 +97,6 @@ onBeforeMount(async () => {
     <div v-else-if="debate.curPhase">
       <TextContainer> Debate is past Start phase where users can submit opinions. Please view debate <a style="color: blue" :href="routePath">here</a> </TextContainer>
     </div>
-    <TextContainer v-else> No debate with ID {{ debateId }} is found.</TextContainer>
+    <TextContainer v-else> No active debate with ID {{ debateId }} is found.</TextContainer>
   </div>
 </template>

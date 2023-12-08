@@ -264,6 +264,11 @@ class Routes {
     await Phase.delete(new ObjectId(debateID));
     return await Debate.delete(new ObjectId(debateID));
   }
+
+  @Router.post("/debate/computeScore")
+  async computeScore(debateID: string, opinion: string, score: number) {
+    return await Review.uploadTotalScore(debateID, opinion, score);
+  }
 }
 
 export default getExpressRouter(new Routes());
