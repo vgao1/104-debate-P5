@@ -40,13 +40,6 @@ async function generateTenOpinions(prompt: string, debate: ObjectId, revised = f
     ["unsure about their opinion", "65729a4ad39910b7ab256804"],
   ];
 
-  let lenOps = 0;
-  let opinions: ObjectId[] = [];
-  if (revised) {
-    opinions = await Debate.getOriginalOpinionsByDebate(debate);
-    lenOps = opinions.length;
-  }
-
   for (const [type, user] of types) {
     const res = (await respondToPrompt(prompt, type)).content ?? "";
     const likertScale = Number(res.split("////")[0]);
@@ -55,9 +48,6 @@ async function generateTenOpinions(prompt: string, debate: ObjectId, revised = f
       try {
         await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
         if (revised) {
-          const score = Math.random() * 150;
-          const opInd = Math.floor(Math.random() * lenOps);
-          await Review.create(user, debate.toString(), opinions[opInd].toString(), score);
           await Debate.addRevisedOpinion(debate, user, content, likertScale);
         } else {
           await Debate.addOpinion(debate, user, content, likertScale);
