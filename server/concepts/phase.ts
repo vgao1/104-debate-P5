@@ -225,7 +225,7 @@ export default class PhaseConcept {
     if (!phase) {
       const expiredPhase = await this.expired.readOne({ key });
       if (!expiredPhase) {
-        throw new NoPhaseError(key);
+        return null;
       } else {
         return expiredPhase;
       }

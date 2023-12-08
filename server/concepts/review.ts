@@ -95,6 +95,15 @@ export default class ReviewConcept {
       return { msg: "Score already computed" };
     }
   }
+
+  async getDeltaForOpinion(debate: string, opinion: string) {
+    const existingScore = await this.scores.readOne({ debate, opinion });
+    if (existingScore) {
+      return existingScore.totalScore;
+    } else {
+      return 0;
+    }
+  }
 }
 
 export class ReviewAuthorNotMatchError extends NotAllowedError {

@@ -188,6 +188,11 @@ class Routes {
     return await Debate.getScoreForOpinions(_ids as string[], scores as number[]);
   }
 
+  @Router.get("/reviews/delta")
+  async getComputedScore(debateID: string, opinion: string) {
+    return await Review.getDeltaForOpinion(debateID, opinion);
+  }
+
   @Router.post("/opinion/submitReview")
   async submitReview(session: WebSessionDoc, debateId: string, opinion: ObjectId, score: number) {
     const user = WebSession.getUser(session);
