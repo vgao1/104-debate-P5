@@ -176,7 +176,6 @@ class Routes {
     const user = WebSession.getUser(session);
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
-    const prompt = (await Debate.getDebateById(new ObjectId(debate))).prompt;
     await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
     const resp = await Debate.addOpinion(debate, user.toString(), content, likertScale);
     return resp;
