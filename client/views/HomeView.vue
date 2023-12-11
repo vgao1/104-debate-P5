@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DebatePrompt from "@/components/Home/DebatePrompt.vue";
 import TextContainer from "@/components/TextContainer.vue";
+import HelpPopup from "@/components/HelpPopup.vue";
 import { fetchy } from "@/utils/fetchy";
 import { onBeforeMount, ref } from "vue";
 
@@ -57,7 +58,12 @@ onBeforeMount(async () => {
   <!-- <div v-if="loaded && debates.length !== 0" class="py-4"> -->
   <div v-if="loaded" class="py-4">
     <TextContainer>
-      <p class="text-base font-bold">Today's debates</p>
+      <div class="flex flex-row justify-between">
+        <p class="text-base font-bold">Today's debates</p>
+        <HelpPopup />
+      </div>
+      <!-- <p class="text-base font-bold">Today's debates</p>
+      <HelpPopup /> -->
     </TextContainer>
     <div v-for="debate in debates" class="flex flex-col" :key="debate._id">
       <TextContainer>
