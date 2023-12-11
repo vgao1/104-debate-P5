@@ -104,4 +104,5 @@ onBeforeMount(async () => {
       <TextContainer> No debate with ID {{ debateId }} found. </TextContainer>
     </div>
   </div>
+  <div v-else>Not loaded yet</div>
 </template>

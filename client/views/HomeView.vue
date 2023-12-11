@@ -31,7 +31,8 @@ async function getHistoryDebates() {
   historyDebates.value = res;
 }
 
-function timeLeft(deadline: string) {
+function timeLeft(debate: Record<string, string>) {
+  const deadline = debate.deadline;
   const currentTime = new Date().getTime();
   const debateDeadline = new Date(deadline).getTime();
   let timeLeft = Math.floor((debateDeadline - currentTime) / 36e5);
@@ -67,7 +68,7 @@ onBeforeMount(async () => {
     </TextContainer>
     <div v-for="debate in debates" class="flex flex-col" :key="debate._id">
       <TextContainer>
-        <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate.deadline)" />
+        <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate)" />
       </TextContainer>
     </div>
 
@@ -78,7 +79,7 @@ onBeforeMount(async () => {
     <!-- TODO: ok to reverse past debate list to show more recent first? -->
     <div v-for="debate in historyDebates.reverse()" class="flex flex-col" :key="debate._id">
       <TextContainer>
-        <DebatePrompt :debate="debate" :timeLeft="timeLeft(debate.deadline)" />
+        <DebatePrompt :debate="debate" :timeLeft="0" />
       </TextContainer>
     </div>
   </div>
