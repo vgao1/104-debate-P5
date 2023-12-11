@@ -26,31 +26,13 @@ async function getOpinions() {
     console.log("error");
     return;
   }
-
-  for (let opinion of res.opinions) {
-    try {
-      const scoreData = await fetchy(`/api/debate/computeScore`, "POST", {
-        body: {
-          debateID: debateId,
-          opinion: opinion._id.toString(),
-        },
-      });
-      opinion.score = scoreData.score;
-    } catch (_) {
-      opinion.score = 0;
-      console.log("error");
-    }
-  }
-  opinions.value = res.opinions;
+  opinions.value = res.opinions.sort((prev: Record<string, string>, curr: Record<string, string>) => Number(prev.score) - Number(curr.score));
   debatePhase.value = res.curPhase;
   category.value = res.category;
   prompt.value = res.prompt;
   return;
 }
 
-function sortOpinionsByScore() {
-  return opinions.value.sort((prev, curr) => Number(prev.score) - Number(curr.score)).reverse();
-}
 onBeforeMount(async () => {
   if (!isLoggedIn.value) {
     void router.push({
@@ -81,7 +63,7 @@ onBeforeMount(async () => {
 
     <div v-if="debatePhase === 'Recently Completed' || debatePhase === 'Archived'">
       <section v-if="opinions.length > 0">
-        <div v-for="opinion in sortOpinionsByScore()" :key="opinion._id" class="flex flex-col">
+        <div v-for="opinion in opinions" :key="opinion._id" class="flex flex-col">
           <TextContainer>
             <b class="text-sm">User Opinion: </b>
             {{ opinion.content }}
@@ -104,5 +86,4 @@ onBeforeMount(async () => {
       <TextContainer> No debate with ID {{ debateId }} found. </TextContainer>
     </div>
   </div>
-  <div v-else>Not loaded yet</div>
 </template>

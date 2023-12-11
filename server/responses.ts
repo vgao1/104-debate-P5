@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { Debate } from "./app";
+import { Debate, Review } from "./app";
 import { DifferentOpinionMatchDoc } from "./concepts/debate";
 import { ActivePhaseDoc, BasePhaseDoc, KeyExistsError } from "./concepts/phase";
 import { Router } from "./framework/router";
@@ -36,9 +36,24 @@ export default class Responses {
     if (!phase) {
       return phase;
     }
+    const opinionsWithScore = [];
     const opinions = await Debate.getAllOpinionsForDebate(phase.key.toString());
     const debate = await Debate.getDebateById(phase.key);
-    return { opinions, prompt: debate.prompt, category: debate.category, curPhase: PHASES[phase.curPhase] };
+    const debateID = debate._id.toString();
+    for (let i = 0; i < opinions.length; i++) {
+      let score = 0;
+      const opinion = { ...opinions[i], score: 0 };
+      const opinionID = opinions[i]._id.toString();
+      const reviews = await Review.getReviewsByOpinion(debateID, opinionID);
+      for (const review of reviews) {
+        const likertDiff = await Debate.getLikertDiffByUser(debateID, review.reviewer.toString());
+        const weight = review.score / 150;
+        score += likertDiff * weight;
+      }
+      opinion.score = (await Review.uploadTotalScore(debate._id.toString(), opinions[i]._id.toString(), Math.round(score))).score;
+      opinionsWithScore.push(opinion);
+    }
+    return { opinions: opinionsWithScore, prompt: debate.prompt, category: debate.category, curPhase: PHASES[phase.curPhase] };
   }
 
   static async opinionContents(matchedOpinions: DifferentOpinionMatchDoc | null) {

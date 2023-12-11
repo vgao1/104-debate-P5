@@ -77,7 +77,7 @@ onBeforeMount(async () => {
     </TextContainer>
 
     <!-- TODO: ok to reverse past debate list to show more recent first? -->
-    <div v-for="debate in historyDebates.reverse()" class="flex flex-col" :key="debate._id">
+    <div v-for="debate in historyDebates" class="flex flex-col" :key="debate._id">
       <TextContainer>
         <DebatePrompt :debate="debate" :timeLeft="0" />
       </TextContainer>
