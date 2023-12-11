@@ -25,7 +25,7 @@
       
       <div class="pt-4">
       <b>III. Results</b><br>
-      Everyones can view the debate summary and how impactful each opinion was
+      Everyone can view the debate summary and how impactful each opinion was
       </div>
     </p>
   </div>
