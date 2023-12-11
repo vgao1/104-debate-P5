@@ -4,7 +4,7 @@ import TextContainer from "@/components/TextContainer.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, ref, Ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 import router from "../router";
 
@@ -15,7 +15,6 @@ const loaded = ref(false);
 const debatePhase = ref("");
 const prompt = ref("");
 const category = ref("");
-const deltas: Ref<Map<string, number>> = ref(new Map());
 
 const { isLoggedIn } = storeToRefs(useUserStore());
 
@@ -29,27 +28,29 @@ async function getOpinions() {
   }
 
   for (let opinion of res.opinions) {
-    let query: Record<string, string> = { debateID: debateId, opinion: opinion._id };
-    opinion.score = await fetchy(`/api/reviews/delta`, "GET", { query });
+    try {
+      const scoreData = await fetchy(`/api/debate/computeScore`, "POST", {
+        body: {
+          debateID: debateId,
+          opinion: opinion._id.toString(),
+        },
+      });
+      opinion.score = scoreData.score;
+    } catch (_) {
+      opinion.score = 0;
+      console.log("error");
+    }
   }
   opinions.value = res.opinions;
   debatePhase.value = res.curPhase;
   category.value = res.category;
   prompt.value = res.prompt;
+  return;
 }
 
-async function getDeltas() {
-  let res;
-  try {
-    res = await fetchy(`/api/reviews/deltas/${debateId}`, "GET");
-  } catch (_) {
-    console.log("error");
-    return;
-  }
-
-  deltas.value = res;
+function sortOpinionsByScore() {
+  return opinions.value.sort((prev, curr) => Number(prev.score) - Number(curr.score)).reverse();
 }
-
 onBeforeMount(async () => {
   if (!isLoggedIn.value) {
     void router.push({
@@ -57,9 +58,7 @@ onBeforeMount(async () => {
     });
   } else {
     await getOpinions();
-    await getDeltas();
     loaded.value = true;
-    console.log(loaded.value && debatePhase.value === "Recently Completed");
   }
 });
 </script>
@@ -82,7 +81,7 @@ onBeforeMount(async () => {
 
     <div v-if="debatePhase === 'Recently Completed' || debatePhase === 'Archived'">
       <section v-if="opinions.length > 0">
-        <div v-for="opinion in opinions" :key="opinion.score" class="flex flex-col">
+        <div v-for="opinion in sortOpinionsByScore()" :key="opinion._id" class="flex flex-col">
           <TextContainer>
             <b class="text-sm">User Opinion: </b>
             {{ opinion.content }}
@@ -92,10 +91,13 @@ onBeforeMount(async () => {
       </section>
       <TextContainer v-else> No opinions were submitted for this prompt </TextContainer>
     </div>
+    <div v-else-if="debatePhase === 'Review'">
+      <TextContainer> Unavailable because debate is in Review phase where users review opinions. Please view debate <a style="color: blue" href=".">here</a> </TextContainer>
+    </div>
     <div v-else-if="debatePhase === 'Start'">
       <TextContainer> Unavailable because debate is in Start phase where users submit opinions. Please view debate <a style="color: blue" href=".">here</a> </TextContainer>
     </div>
-    <div v-else-if="debatePhase">
+    <div v-else-if="debatePhase === 'Proposed'">
       <TextContainer> Opinion Submission page will be unlocked when a debate is initialized with this prompt. </TextContainer>
     </div>
     <div v-else>

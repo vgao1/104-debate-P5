@@ -60,7 +60,7 @@ async function getReviewData() {
     console.log("error");
     return;
   }
-  revisedOpinionSliderValue.value = revisedOpinion.likertScale;
+  revisedOpinionSliderValue.value = revisedOpinion.likertScale ? revisedOpinion.likertScale : 50;
   opinionText.value = revisedOpinion.content;
   buttonText.value = revisedOpinion.buttonText;
 

@@ -21,8 +21,14 @@ export default class ReviewConcept {
   public readonly scores = new DocCollection<ScoreDoc>("scores");
 
   async create(reviewer: string, debate: string, opinion: string, score: number) {
-    const _id = await this.reviews.createOne({ reviewer, debate, opinion, score });
-    return { msg: "Review successfully created!", review: await this.reviews.readOne({ _id }) };
+    const existingReview = await this.reviews.readOne({ reviewer, debate, opinion });
+    if (existingReview) {
+      await this.reviews.updateOne({ reviewer, debate, opinion }, { reviewer, debate, opinion, score });
+      return { msg: "Review successfully updated!" };
+    } else {
+      await this.reviews.createOne({ reviewer, debate, opinion, score });
+      return { msg: "Review successfully created!" };
+    }
   }
 
   async getReviews(query: Filter<ReviewDoc>) {
@@ -86,13 +92,18 @@ export default class ReviewConcept {
     }
   }
 
+  async getReviewsByOpinion(debate: string, opinion: string) {
+    const reviewsForOpinion = await this.reviews.readMany({ debate, opinion });
+    return reviewsForOpinion;
+  }
+
   async uploadTotalScore(debate: string, opinion: string, score: number) {
     const isScoreComputed = await this.scores.readOne({ debate, opinion });
     if (!isScoreComputed) {
       await this.scores.createOne({ debate, opinion, totalScore: score });
-      return { msg: "Successfully uploaded total score" };
+      return { score };
     } else {
-      return { msg: "Score already computed" };
+      return { score };
     }
   }
 

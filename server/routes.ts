@@ -234,8 +234,15 @@ class Routes {
   }
 
   @Router.post("/debate/computeScore")
-  async computeScore(debateID: string, opinion: string, score: number) {
-    return await Review.uploadTotalScore(debateID, opinion, score);
+  async computeScore(debateID: string, opinion: string) {
+    let score = 0;
+    const reviews = await Review.getReviewsByOpinion(debateID, opinion);
+    for (const review of reviews) {
+      const likertDiff = await Debate.getLikertDiffByUser(debateID, review.reviewer.toString());
+      const weight = review.score / 150;
+      score += likertDiff * weight;
+    }
+    return await Review.uploadTotalScore(debateID, opinion, Math.round(score));
   }
 }
 

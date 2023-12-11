@@ -78,7 +78,7 @@ export default class DebateConcept {
    * @returns a message stating that opinion was added successfully or throws an error
    */
   async addRevisedOpinion(_id: ObjectId, user: string, content: string, likertScale: number) {
-    const existingRevisedOpinion = await this.revisedOpinions.readOne({ author: user });
+    const existingRevisedOpinion = await this.revisedOpinions.readOne({ author: user, debate: _id.toString() });
     if (existingRevisedOpinion) {
       await this.revisedOpinions.updateOne({ author: user, debate: _id.toString() }, { content, author: user, likertScale, debate: _id.toString() });
       return { msg: "Successfully updated revised opinion!" };
@@ -340,6 +340,20 @@ export default class DebateConcept {
     } else {
       throw new NotFoundError("Opinion not found!");
     }
+  }
+
+  async getLikertDiffByUser(debate: string, author: string) {
+    const origOpinion = await this.opinions.readOne({ debate, author });
+    let origLikert = 0;
+    let revisedLikert = 0;
+    if (origOpinion) {
+      origLikert = origOpinion.likertScale;
+    }
+    const revisedOpinion = await this.revisedOpinions.readOne({ debate, author });
+    if (revisedOpinion) {
+      revisedLikert = revisedOpinion.likertScale;
+    }
+    return Math.abs(origLikert - revisedLikert);
   }
 }
 
