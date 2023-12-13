@@ -355,6 +355,15 @@ export default class DebateConcept {
     }
     return Math.abs(origLikert - revisedLikert);
   }
+
+  async getUserOpinons(user: string) {
+    const opinionsByUser = await this.opinions.readMany({ author: user });
+    const opinionIds = [];
+    for (const opinion of opinionsByUser) {
+      opinionIds.push(opinion._id.toString());
+    }
+    return opinionIds;
+  }
 }
 
 export class UsedPromptError extends NotAllowedError {

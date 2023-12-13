@@ -60,6 +60,12 @@ class Routes {
     return await User.delete(user);
   }
 
+  @Router.get("/userDeltas")
+  async getUserDelta(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    const opinions = await Debate.getUserOpinons(user.toString());
+    return await Review.getUserDelta(opinions);
+  }
   ////////////////////////// PHASES //////////////////////////
 
   @Router.get("/activeDebates")

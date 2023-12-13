@@ -115,6 +115,17 @@ export default class ReviewConcept {
       return 0;
     }
   }
+
+  async getUserDelta(opinions: Array<string>) {
+    let score = 0;
+    for (const opinion of opinions) {
+      const scoreObj = await this.scores.readOne({ opinion });
+      if (scoreObj) {
+        score += scoreObj.totalScore;
+      }
+    }
+    return score + " deltas";
+  }
 }
 
 export class ReviewAuthorNotMatchError extends NotAllowedError {
