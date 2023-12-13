@@ -24,10 +24,9 @@ async function getOpinions() {
   try {
     res = await fetchy(`/api/historyDebates/${debateId}`, "GET", {});
   } catch (_) {
-    console.log("error");
     return;
   }
-  opinions.value = res.opinions.sort((prev: Record<string, string>, curr: Record<string, string>) => Number(prev.score) - Number(curr.score));
+  opinions.value = res.opinions;
   debatePhase.value = res.curPhase;
   category.value = res.category;
   prompt.value = res.prompt;

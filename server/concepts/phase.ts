@@ -59,7 +59,12 @@ export default class PhaseConcept {
    */
   async getHistory() {
     await this.expireOld();
-    return await this.expired.readMany({});
+    return await this.expired.readMany(
+      {},
+      {
+        sort: { dateUpdated: -1 },
+      },
+    );
   }
 
   /**

@@ -26,8 +26,6 @@ async function getHistoryDebates() {
   } catch (_) {
     return;
   }
-  console.log("getHistoryDebates");
-  console.log(res);
   historyDebates.value = res;
 }
 
@@ -52,7 +50,6 @@ function timeLeft(debate: Record<string, string>) {
 }
 
 onBeforeMount(async () => {
-  console.log("HomeView");
   await getDebates();
   await getHistoryDebates();
   // await fetchy("/api/debate/testerPrompts", "GET");

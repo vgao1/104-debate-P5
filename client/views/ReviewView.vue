@@ -126,7 +126,6 @@ async function matchUserToOpinions() {
     opinions.value = matches;
     await getReviewData();
   } catch (error: any) {
-    console.log(error.message);
     cantReviewMsg.value = error.message;
   }
   return;
@@ -302,13 +301,13 @@ async function submitOpinion() {
           </div>
         </TextContainer>
       </div>
-      <div v-else-if="cantReviewMsg.length > 0">
+      <TextContainer v-else-if="cantReviewMsg.length > 0">
         {{ cantReviewMsg }}
-      </div>
-      <div v-else-if="!opinions">
+      </TextContainer>
+      <TextContainer v-else-if="!opinions">
         No users submitted an opinion with a different Likert agreeness value than yours, so you don't have opinions to review. Please come back at the end of Phase II (Reviews) to view other users'
         written responses.
-      </div>
+      </TextContainer>
     </div>
     <TextContainer v-else-if="debate.curPhase === 'Recently Completed' || debate.curPhase === 'Archived'">
       Debate is past Phase II (Reviews) where users review other users' different opinions. Please view this debate <a style="color: blue" href="./opinions">here</a>

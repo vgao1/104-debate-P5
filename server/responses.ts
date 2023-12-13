@@ -36,7 +36,7 @@ export default class Responses {
     if (!phase) {
       return phase;
     }
-    const opinionsWithScore = [];
+    let opinionsWithScore = [];
     const opinions = await Debate.getAllOpinionsForDebate(phase.key.toString());
     const debate = await Debate.getDebateById(phase.key);
     const debateID = debate._id.toString();
@@ -53,6 +53,14 @@ export default class Responses {
       opinion.score = (await Review.uploadTotalScore(debate._id.toString(), opinions[i]._id.toString(), Math.round(score))).score;
       opinionsWithScore.push(opinion);
     }
+    opinionsWithScore = opinionsWithScore
+      .sort(
+        (
+          prev: { score: number; content: string; author: string; likertScale: number; debate: string; _id: ObjectId; dateCreated: Date; dateUpdated: Date },
+          curr: { score: number; content: string; author: string; likertScale: number; debate: string; _id: ObjectId; dateCreated: Date; dateUpdated: Date },
+        ) => Number(prev.score) - Number(curr.score),
+      )
+      .reverse();
     return { opinions: opinionsWithScore, prompt: debate.prompt, category: debate.category, curPhase: PHASES[phase.curPhase] };
   }
 

@@ -23,7 +23,6 @@ async function getOpinion() {
   try {
     res = await fetchy(`/api/debate/getMyOpinion/${debateId}`, "GET", { alert: false });
   } catch (_) {
-    console.log("error");
     return;
   }
   sliderValue.value = res.likertScale;
@@ -61,7 +60,6 @@ async function deleteOpinion() {
   try {
     await fetchy(`/api/debate/deleteMyOpinion/${debateId}`, "DELETE", {});
   } catch (_) {
-    console.log("error");
     return;
   }
   void router.push({

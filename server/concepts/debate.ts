@@ -139,7 +139,6 @@ export default class DebateConcept {
             }
           }
         }
-        console.log(await this.differentOpinionMatches.readOne({ debate: _id.toString(), reviewer }));
         return await this.differentOpinionMatches.readOne({ debate: _id.toString(), reviewer });
       } else {
         throw new NotAllowedError("User didn't submit an opinion, so they can't review opinions");
