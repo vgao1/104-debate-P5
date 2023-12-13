@@ -41,6 +41,12 @@ function timeLeft(debate: Record<string, string>) {
   if (timeLeft == 0) {
     timeUnit = "min";
     timeLeft = Math.floor((debateDeadline - currentTime) / 6e4);
+    if (timeLeft == 0) {
+      const numSecsLeft = Math.floor((debateDeadline - currentTime) / 1e3);
+      if (numSecsLeft > 0) {
+        return "<1 min";
+      }
+    }
   }
   return timeLeft.toString() + " " + timeUnit;
 }

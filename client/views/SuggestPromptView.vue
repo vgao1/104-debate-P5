@@ -27,6 +27,7 @@ async function submitSuggestion() {
         prompt: promptText.value,
         category: categoryText.value,
       },
+      alert: false,
     });
   } catch (_) {
     errorText.value = "An error has occurred. Please try again.";

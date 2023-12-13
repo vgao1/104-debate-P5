@@ -63,10 +63,11 @@ export default class DebateConcept {
       allParticipants.push(user);
       await this.opinions.createOne({ content, author: user, likertScale, debate: _id.toString() });
       await this.debates.updateOne({ _id }, { participants: allParticipants });
+      return { msg: "Successfully added opinion!" };
     } else {
       await this.opinions.updateOne({ author: user, debate: _id.toString() }, { content, likertScale });
+      return { msg: "Successfully updated opinion!" };
     }
-    return { msg: "Successfully added opinion!" };
   }
 
   /**
@@ -203,7 +204,7 @@ export default class DebateConcept {
   async getRevisedOpinionForDebateByAuthor(debate: string, author: string) {
     const existingOpinion = await this.revisedOpinions.readOne({ author, debate });
     if (existingOpinion) {
-      return { content: existingOpinion.content, buttonText: "Update" };
+      return { content: existingOpinion.content, buttonText: "Update", likertScale: existingOpinion.likertScale };
     } else {
       return { content: "", buttonText: "Submit" };
     }

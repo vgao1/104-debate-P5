@@ -15,6 +15,7 @@ const loaded = ref(false);
 const debatePhase = ref("");
 const prompt = ref("");
 const category = ref("");
+const routePath = route.path.slice(-1) === "/" ? route.path.substring(0, route.path.length - 1) : route.path;
 
 const { isLoggedIn } = storeToRefs(useUserStore());
 
@@ -74,10 +75,13 @@ onBeforeMount(async () => {
       <TextContainer v-else> No opinions were submitted for this prompt </TextContainer>
     </div>
     <div v-else-if="debatePhase === 'Review'">
-      <TextContainer> Unavailable because debate is in Review phase where users review opinions. Please view debate <a style="color: blue" href=".">here</a> </TextContainer>
+      <TextContainer> Unavailable because this debate is in Phase II (Reviews) where users review opinions. Please view this debate <a style="color: blue" href="./reviews">here</a> </TextContainer>
     </div>
     <div v-else-if="debatePhase === 'Start'">
-      <TextContainer> Unavailable because debate is in Start phase where users submit opinions. Please view debate <a style="color: blue" href=".">here</a> </TextContainer>
+      <TextContainer>
+        Unavailable because this debate is in Phase I (Opinions) where users submit opinions. Please view this debate
+        <a style="color: blue" :href="'/' + routePath.substring(1, routePath.lastIndexOf('/'))">here</a>
+      </TextContainer>
     </div>
     <div v-else-if="debatePhase === 'Proposed'">
       <TextContainer> Opinion Submission page will be unlocked when a debate is initialized with this prompt. </TextContainer>

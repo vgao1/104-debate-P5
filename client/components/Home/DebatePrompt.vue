@@ -19,34 +19,44 @@ function redirectToLogin() {
 }
 
 function openDebate() {
-  void router.push({
-    path: `/debates/${debateId}`,
-  });
+  if (isLoggedIn) {
+    void router.push({
+      path: `/debates/${debateId}`,
+    });
+  } else {
+    redirectToLogin();
+  }
 }
 
 function openReviews() {
-  void router.push({
-    path: `/debates/${debateId}/reviews`,
-  });
+  if (isLoggedIn) {
+    void router.push({
+      path: `/debates/${debateId}/reviews`,
+    });
+  } else {
+    redirectToLogin();
+  }
 }
 
 function openOpinions() {
-  void router.push({
-    path: `/debates/${debateId}/opinions`,
-  });
+  if (isLoggedIn) {
+    void router.push({
+      path: `/debates/${debateId}/opinions`,
+    });
+  } else {
+    redirectToLogin();
+  }
 }
 </script>
 
 <template>
   <div>
-    <!-- <button @click="openDebate"> -->
     <div class="border-l-2 pl-2 border-neutral-300 space-y-1">
       <div class="flex justify-between items-center">
         <b class="text-xs">{{ debate.category }}</b>
 
-        <!-- <div v-if="debate.curPhase != 'Recently Completed' && debate.curPhase != 'Archived'"> -->
         <div v-if="debate.curPhase == 'Start'">
-          <p class="text-xs text-lime-400">Due in {{ timeLeft }}</p>
+          <p class="text-xs text-lime-400">Opinion due in {{ timeLeft }}</p>
         </div>
         <div v-else-if="debate.curPhase == 'Review'">
           <p class="text-xs text-orange-400">Review due in {{ timeLeft }}</p>
@@ -58,10 +68,9 @@ function openOpinions() {
       <p class="pb-1">{{ debate.prompt }}</p>
     </div>
 
-    <!-- </button> -->
+    <!-- button variations based on phases -->
     <ViewOpinionsButton v-if="debate.curPhase == 'Recently Completed' || debate.curPhase == 'Archived'" @click="openOpinions" />
-    <WriteOpinionButton v-else-if="!isLoggedIn" @click="redirectToLogin" />
-    <WriteOpinionButton v-else-if="isLoggedIn && debate.curPhase == 'Start'" @click="openDebate" />
-    <ReviewOpinionsButton v-else-if="isLoggedIn && debate.curPhase == 'Review'" @click="openReviews" />
+    <WriteOpinionButton v-else-if="debate.curPhase == 'Start'" @click="openDebate" />
+    <ReviewOpinionsButton v-else-if="debate.curPhase == 'Review'" @click="openReviews" />
   </div>
 </template>

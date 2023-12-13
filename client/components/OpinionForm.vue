@@ -14,17 +14,9 @@ const canEdit = ref(false);
 const sliderValue = ref();
 const opinionText = ref("");
 const buttonText = ref("");
-
+const errorText = ref("");
+const successText = ref("");
 const maxOpinionChars = 1000;
-
-// const sliderColor = computed(() => {
-//   // Define an array of colors in the gradient
-//   const colors = ['#e07a5f', '#de7c5d', '#d88258', '#ce8a53', '#c09453', '#b09d59', '#a0a466', '#93aa75', '#89ae84', '#84b090', '#81b297', '#81b29a'];
-//   // Calculate the index of the color based on the slider value
-//   const index = Math.floor((sliderValue.value / 100) * (colors.length - 1));
-//   // Return the color at the calculated index
-//   return colors[index];
-// });
 
 async function getOpinion() {
   let res;
@@ -53,14 +45,15 @@ async function submitOpinion() {
         content: opinionText.value,
         likertScale: sliderValue.value,
       },
+      alert: false,
     });
+    successText.value = "Your opinion has been submitted!";
+    canEdit.value = true;
+    buttonText.value = "Update";
   } catch (_) {
+    errorText.value = "Unsuccessful submission of opinion.";
     return;
   }
-
-  void router.push({
-    path: "/",
-  });
 }
 
 async function deleteOpinion() {
@@ -78,20 +71,13 @@ async function deleteOpinion() {
 
 async function editOpinion() {
   await submitOpinion();
-  void router.push({
-    path: "/",
-  });
+  successText.value = "Your opinion has been updated!";
 }
 </script>
 
 <template>
   <div v-if="loaded">
     <p class="font-bold pb-3 text-base">Your opinion</p>
-    <!-- https://github.com/tailwindlabs/tailwindcss/discussions/8748 -->
-    <!-- <input type="range" min="0" max="100" v-model="sliderValue" 
-    class="range range-xs custom-slider" 
-    :style="{ '--range-shdw': sliderColor }" 
-    /> -->
     <OpinionSlider v-model="sliderValue" />
 
     <div class="w-full flex justify-between text-sm px-2">
@@ -120,6 +106,20 @@ async function editOpinion() {
       <div v-else class="flex justify-center space-x-2">
         <button @click="submitOpinion" class="btn">{{ buttonText }}</button>
       </div>
+    </div>
+
+    <div v-if="errorText !== ''" class="flex pt-4 text-red-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="m-1">{{ errorText }}</p>
+    </div>
+
+    <div v-if="successText !== ''" class="flex pt-4 text-green-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="m-1">{{ successText }}</p>
     </div>
   </div>
 </template>

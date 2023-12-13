@@ -5,6 +5,7 @@ import { ReviewDoc } from "./concepts/review";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
+import { NotAllowedError } from "./concepts/errors";
 
 class Routes {
   ////////////////////////// SESSION //////////////////////////
@@ -196,7 +197,12 @@ class Routes {
     const completed = await Phase.expireOld();
     await Debate.deleteMatchesForDebate(completed);
     await Phase.getPhaseByKey(new ObjectId(debate)); // checks if debate is active
-    return await Responses.opinionContents(await Debate.matchParticipantToDifferentOpinions(debate, user.toString()));
+    try {
+      const opinnionMatches = await Debate.matchParticipantToDifferentOpinions(debate, user.toString());
+      return await Responses.opinionContents(opinnionMatches);
+    } catch {
+      throw new NotAllowedError("You can't review opinions of this debate because you didn't submit an opinion responding to this debate's prompt in Phase I (Opinions)");
+    }
   }
 
   @Router.post("/debate/removeMatchedOpinion")
