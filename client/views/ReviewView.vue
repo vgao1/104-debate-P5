@@ -234,10 +234,10 @@ async function submitOpinion() {
         <div>
           <p class="text-base" v-if="cantReviewMsg.length == 0 && opinions">
             <b class="text-orange-400">Review</b> due
-            <b>{{ formatDate(debate.deadline) }} UTC</b>
+            <b>{{ formatDate(debate.deadline) }}</b>
           </p>
           <p class="text-base" v-else>
-            Phase II <b class="text-orange-400">(Reviews)</b> ends on <br /><b>{{ formatDate(debate.deadline) }} UTC</b>
+            Phase II <b class="text-orange-400">(Reviews)</b> ends on <br /><b>{{ formatDate(debate.deadline) }}</b>
           </p>
           <p class="text-sm">{{ timeLeftString }} remaining</p>
         </div>
