@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import HelpPopup from "@/components/HelpPopup.vue";
 import DebatePrompt from "@/components/Home/DebatePrompt.vue";
 import TextContainer from "@/components/TextContainer.vue";
-import HelpPopup from "@/components/HelpPopup.vue";
 import { fetchy } from "@/utils/fetchy";
 import { onBeforeMount, ref } from "vue";
 
@@ -51,6 +51,9 @@ onBeforeMount(async () => {
   await getHistoryDebates();
   // await fetchy("/api/debate/testerPrompts", "GET");
   loaded.value = true;
+
+  // uncomment for testing review button frontend
+  // debates.value[debates.value.length - 1].curPhase = "Review";
 });
 </script>
 

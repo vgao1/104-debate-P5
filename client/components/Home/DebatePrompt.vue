@@ -44,8 +44,12 @@ function openOpinions() {
       <div class="flex justify-between items-center">
         <b class="text-xs">{{ debate.category }}</b>
 
-        <div v-if="debate.curPhase != 'Recently Completed' && debate.curPhase != 'Archived'">
+        <!-- <div v-if="debate.curPhase != 'Recently Completed' && debate.curPhase != 'Archived'"> -->
+        <div v-if="debate.curPhase == 'Start'">
           <p class="text-xs text-lime-400">Due in {{ timeLeft }}</p>
+        </div>
+        <div v-else-if="debate.curPhase == 'Review'">
+          <p class="text-xs text-orange-400">Review due in {{ timeLeft }}</p>
         </div>
         <div v-else>
           <p class="text-xs text-neutral-400">Done</p>
