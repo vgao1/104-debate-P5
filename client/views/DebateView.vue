@@ -73,16 +73,16 @@ async function getDebate() {
 }
 
 function formatDate(dateString: string) {
-  const options = { 
-    // year: null, 
-    month: 'long', 
-    day: 'numeric', 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit', 
+  const options = {
+    // year: null,
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
     // timeZoneName: 'short' // Include this to show timezone information
   };
-  return new Date(dateString).toLocaleDateString('en-US', options as Intl.DateTimeFormatOptions);
+  return new Date(dateString).toLocaleDateString("en-US", options as Intl.DateTimeFormatOptions);
 }
 
 onBeforeMount(async () => {
@@ -107,7 +107,7 @@ onBeforeMount(async () => {
       <div class="flex justify-center">
         <div>
           <p class="text-base">
-            <b class="text-lime-400">Opinion</b> due 
+            <b class="text-lime-400">Opinion</b> due
             <b>{{ formatDate(debate.deadline) }}</b>
           </p>
           <p class="text-sm">{{ timeLeftString }} remaining</p>

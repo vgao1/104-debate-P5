@@ -164,6 +164,19 @@ onBeforeMount(async () => {
   }
 });
 
+function formatDate(dateString: string) {
+  const options = {
+    // year: null,
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    // timeZoneName: 'short' // Include this to show timezone information
+  };
+  return new Date(dateString).toLocaleDateString("en-US", options as Intl.DateTimeFormatOptions);
+}
+
 async function submitOpinion() {
   for (let i = 0; i < opinions.value.length; i++) {
     const matchedOpinion = opinions.value[i];
@@ -221,10 +234,10 @@ async function submitOpinion() {
         <div>
           <p class="text-base" v-if="cantReviewMsg.length == 0 && opinions">
             <b class="text-orange-400">Review</b> due at
-            <b>{{ debate.deadline }} UTC</b>
+            <b>{{ formatDate(debate.deadline) }} UTC</b>
           </p>
           <p class="text-base" v-else>
-            Phase II <b class="text-orange-400">(Reviews)</b> ends at <br /><b>{{ debate.deadline }} UTC</b>
+            Phase II <b class="text-orange-400">(Reviews)</b> ends at <br /><b>{{ formatDate(debate.deadline) }} UTC</b>
           </p>
           <p class="text-sm">{{ timeLeftString }} remaining</p>
         </div>
